@@ -1,0 +1,16 @@
+name = "marcadar-api"
+main = "index.js"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "MARCADAR_DB"
+database_name = "marcadar-db"
+database_id = "2abb9cb7-b53f-46d5-97ac-8e35165e5b49"
+
+# Secrets (configurar con: wrangler secret put NOMBRE)
+# CLAUDE_API_KEY
+# RESEND_API_KEY
+# ADMIN_PASSWORD
+# FROM_EMAIL
+# FROM_NAME
