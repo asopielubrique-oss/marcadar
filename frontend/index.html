@@ -4,781 +4,1048 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Marcadar · Asopiel</title>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #F7FAF8; --bg-alt: #EBF2EE; --ink: #1A3D2E; --ink-mid: #3D6B54; --ink-soft: #7AA88F;
-  --verde: #2B6B4A; --verde-light: #3D8A60; --verde-pale: #D9EDE3; --blanco: #FFFFFF;
-  --border: #C5DDD0; --success: #1B5E35; --success-bg: #D4EDDA; --danger: #7B2D2D; --danger-bg: #FDECEA;
-  --warn: #7B5E00; --warn-bg: #FFF8E1;
-  --shadow: 0 2px 12px rgba(27,61,46,0.08); --shadow-lg: 0 8px 32px rgba(27,61,46,0.14);
-  --radius: 4px; --radius-lg: 8px; --font: 'Montserrat', sans-serif;
+  --bg: #F7F5F2; --bg-alt: #EDEAE5; --ink: #1A2B1F; --ink-mid: #3D5945; --ink-soft: #7A9485;
+  --accent: #1B4F8A; --accent-light: #2563A8; --accent-pale: #D6E4F5;
+  --verde: #1A6B3C; --verde-light: #2D8A55; --verde-pale: #D4EDE0;
+  --blanco: #FFFFFF; --border: #D5CEC5;
+  --success: #1B5E35; --success-bg: #D4EDDA;
+  --danger: #7B2020; --danger-bg: #FDECEA;
+  --warn: #7B5500; --warn-bg: #FFF3D6;
+  --shadow: 0 2px 12px rgba(26,43,31,0.08); --shadow-lg: 0 8px 32px rgba(26,43,31,0.14);
+  --radius: 6px; --radius-lg: 10px;
+  --font: 'Inter', sans-serif; --font-serif: 'Playfair Display', serif;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: var(--font); background: var(--bg); color: var(--ink); min-height: 100vh; font-size: 15px; line-height: 1.6; }
+body { font-family: var(--font); background: var(--bg); color: var(--ink); min-height: 100vh; font-size: 14px; line-height: 1.6; }
 
-/* HEADER */
-.header { background: var(--ink); padding: 0; position: sticky; top: 0; z-index: 100; border-bottom: 2px solid var(--verde-light); }
-.header-inner { max-width: 1300px; margin: 0 auto; display: flex; align-items: stretch; justify-content: space-between; height: 68px; }
-.logo { display: flex; align-items: center; gap: 16px; text-decoration: none; background: white; padding: 0 24px 0 20px; border-right: 2px solid var(--verde-light); flex-shrink: 0; }
-.logo img { height: 40px; width: auto; }
-.logo-text { display: flex; flex-direction: column; line-height: 1.2; border-left: 1px solid rgba(43,107,74,0.2); padding-left: 14px; }
-.logo-title { font-size: 12px; font-weight: 700; color: var(--ink); letter-spacing: 0.05em; text-transform: uppercase; }
-.logo-sub { font-size: 10px; font-weight: 400; color: var(--ink-soft); letter-spacing: 0.05em; }
-.header-nav-wrapper { display: flex; align-items: center; padding: 0 24px; flex: 1; justify-content: space-between; }
-.header-nav { display: flex; align-items: center; gap: 4px; }
-.nav-btn { padding: 8px 16px; border-radius: var(--radius); border: none; cursor: pointer; font-family: var(--font); font-size: 12px; font-weight: 500; letter-spacing: 0.03em; transition: all 0.15s; background: transparent; color: rgba(255,255,255,0.6); }
-.nav-btn:hover { color: white; background: rgba(255,255,255,0.08); }
-.nav-btn.active { color: white; background: rgba(61,138,96,0.3); }
-.header-stats { display: flex; gap: 24px; }
-.stat-chip { display: flex; flex-direction: column; align-items: center; }
-.stat-chip-num { font-size: 18px; font-weight: 700; color: white; line-height: 1; }
-.stat-chip-label { font-size: 9px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.06em; }
+/* ── LOGIN ─────────────────────────────────────────────────────── */
+.login-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--ink); padding: 24px; }
+.login-card { background: white; border-radius: var(--radius-lg); padding: 48px 44px; max-width: 400px; width: 100%; box-shadow: var(--shadow-lg); }
+.login-badge { display: inline-block; background: var(--accent-pale); color: var(--accent); font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 10px; border-radius: 20px; margin-bottom: 20px; }
+.login-title { font-family: var(--font-serif); font-size: 26px; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+.login-sub { font-size: 13px; color: var(--ink-soft); margin-bottom: 32px; }
+.field { margin-bottom: 18px; }
+.field label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 6px; color: var(--ink); letter-spacing: 0.03em; }
+.field input { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: var(--radius); font-family: var(--font); font-size: 14px; color: var(--ink); background: white; transition: border-color 0.15s; outline: none; }
+.field input:focus { border-color: var(--accent); }
+.btn-primary { width: 100%; padding: 12px; background: var(--accent); color: white; border: none; border-radius: var(--radius); font-family: var(--font); font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+.btn-primary:hover { background: var(--accent-light); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.login-error { color: var(--danger); font-size: 13px; margin-top: 12px; display: none; }
 
-/* VISTAS */
-.view { display: none; padding: 32px 24px; max-width: 1300px; margin: 0 auto; }
+/* ── APP SHELL ─────────────────────────────────────────────────── */
+.app { display: none; min-height: 100vh; flex-direction: column; }
+.app.visible { display: flex; }
+
+/* ── HEADER ────────────────────────────────────────────────────── */
+.header { background: var(--ink); position: sticky; top: 0; z-index: 100; border-bottom: 2px solid var(--verde); }
+.header-inner { max-width: 1300px; margin: 0 auto; display: flex; align-items: center; height: 60px; padding: 0 24px; gap: 24px; }
+.header-brand { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.brand-dot { width: 8px; height: 8px; background: var(--verde-light); border-radius: 50%; }
+.brand-name { font-size: 15px; font-weight: 700; color: white; letter-spacing: 0.02em; }
+.brand-by { font-size: 11px; color: rgba(255,255,255,0.35); margin-left: 2px; }
+.header-divider { width: 1px; height: 28px; background: rgba(255,255,255,0.12); flex-shrink: 0; }
+.header-tabs { display: flex; gap: 2px; flex: 1; }
+.tab-btn { padding: 7px 16px; border: none; border-radius: var(--radius); background: transparent; color: rgba(255,255,255,0.5); font-family: var(--font); font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.tab-btn:hover { color: white; background: rgba(255,255,255,0.07); }
+.tab-btn.active { color: white; background: rgba(27,79,138,0.4); }
+.tab-count { background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.7); font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 10px; min-width: 20px; text-align: center; }
+.tab-btn.active .tab-count { background: var(--accent); color: white; }
+.header-stats { display: flex; gap: 20px; flex-shrink: 0; }
+.stat-pill { display: flex; flex-direction: column; align-items: center; }
+.stat-num { font-size: 16px; font-weight: 700; color: white; line-height: 1; }
+.stat-label { font-size: 9px; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.06em; }
+.header-logout { background: none; border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.4); padding: 5px 12px; border-radius: var(--radius); font-family: var(--font); font-size: 11px; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+.header-logout:hover { color: white; border-color: rgba(255,255,255,0.3); }
+
+/* ── MAIN ──────────────────────────────────────────────────────── */
+.main { flex: 1; }
+.view { display: none; padding: 28px 24px; max-width: 1300px; margin: 0 auto; }
 .view.active { display: block; }
 
-/* LOGIN */
-.login-wrapper { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--ink); padding: 24px; }
-.login-card { background: white; border-radius: var(--radius-lg); padding: 48px 44px; max-width: 400px; width: 100%; box-shadow: var(--shadow-lg); }
-.login-logo { display: flex; align-items: center; gap: 14px; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
-.login-logo img { height: 38px; width: auto; }
-.login-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
-.login-sub { font-size: 12px; color: var(--ink-soft); margin-bottom: 28px; }
-.field { margin-bottom: 16px; }
-.field label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 6px; color: var(--ink); }
-.field input, .field select, .field textarea { width: 100%; border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 14px; font-family: var(--font); font-size: 13px; color: var(--ink); background: var(--bg); outline: none; transition: border-color 0.15s; }
-.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--verde); box-shadow: 0 0 0 3px rgba(43,107,74,0.1); background: white; }
-.field textarea { resize: vertical; min-height: 90px; }
-.btn { padding: 10px 20px; border-radius: var(--radius); border: none; cursor: pointer; font-family: var(--font); font-size: 13px; font-weight: 600; transition: all 0.15s; }
-.btn-primary { background: var(--ink); color: white; }
-.btn-primary:hover { background: var(--verde); }
-.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-.btn-success { background: var(--success); color: white; }
-.btn-success:hover { background: #1a5230; }
-.btn-danger { background: var(--danger); color: white; }
-.btn-danger:hover { background: #6b2424; }
-.btn-outline { background: transparent; color: var(--ink); border: 1px solid var(--border); }
-.btn-outline:hover { border-color: var(--verde); color: var(--verde); }
-.btn-sm { padding: 6px 12px; font-size: 11px; }
-.btn-full { width: 100%; }
-.login-error { background: var(--danger-bg); color: var(--danger); padding: 10px 14px; border-radius: var(--radius); font-size: 12px; margin-bottom: 16px; display: none; }
+/* ── PANEL DE BÚSQUEDA ─────────────────────────────────────────── */
+.search-panel { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 24px; box-shadow: var(--shadow); }
+.search-panel-title { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.search-panel-title::before { content: ''; display: block; width: 3px; height: 14px; background: var(--accent); border-radius: 2px; }
+.search-row { display: flex; gap: 12px; flex-wrap: wrap; }
+.search-main { display: flex; gap: 10px; flex: 1; min-width: 280px; }
+.search-input { flex: 1; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: var(--radius); font-family: var(--font); font-size: 14px; color: var(--ink); background: white; outline: none; transition: border-color 0.15s; }
+.search-input:focus { border-color: var(--accent); }
+.search-input::placeholder { color: var(--ink-soft); }
+.btn { padding: 10px 18px; border: none; border-radius: var(--radius); font-family: var(--font); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; }
+.btn-accent { background: var(--accent); color: white; }
+.btn-accent:hover { background: var(--accent-light); }
+.btn-green { background: var(--verde); color: white; }
+.btn-green:hover { background: var(--verde-light); }
+.btn-outline { background: white; color: var(--ink); border: 1.5px solid var(--border); }
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
+.pais-selector { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.pais-chip { padding: 7px 14px; border: 1.5px solid var(--border); border-radius: 20px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s; background: white; color: var(--ink-mid); }
+.pais-chip:hover { border-color: var(--accent); color: var(--accent); }
+.pais-chip.selected { background: var(--accent); border-color: var(--accent); color: white; }
+.pais-chip.dia { border-color: var(--verde); color: var(--verde); font-weight: 600; }
+.pais-chip.dia.selected { background: var(--verde); border-color: var(--verde); color: white; }
+.pais-nuevo-wrapper { display: flex; gap: 8px; align-items: center; }
+.pais-nuevo-input { padding: 7px 12px; border: 1.5px dashed var(--border); border-radius: 20px; font-family: var(--font); font-size: 12px; width: 140px; outline: none; color: var(--ink); }
+.pais-nuevo-input:focus { border-color: var(--accent); border-style: solid; }
+.search-divider { height: 1px; background: var(--border); margin: 16px 0; }
 
-/* ALERTAS */
-.alert { padding: 12px 16px; border-radius: var(--radius); font-size: 13px; margin-bottom: 16px; }
-.alert-success { background: var(--success-bg); color: var(--success); }
-.alert-danger { background: var(--danger-bg); color: var(--danger); }
-.alert-warn { background: var(--warn-bg); color: var(--warn); }
-
-/* PÁGINA PRINCIPAL */
-.page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; flex-wrap: gap; gap: 16px; }
-.page-title { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; color: var(--ink); }
-.page-sub { font-size: 13px; color: var(--ink-soft); margin-top: 2px; }
-
-/* RASTREO - barra de búsqueda */
-.rastreo-bar { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 28px; display: flex; gap: 12px; align-items: flex-end; box-shadow: var(--shadow); }
-.rastreo-bar .field { flex: 1; margin: 0; }
-.rastreo-bar input { font-size: 14px; }
-.rastreo-progress { display: none; text-align: center; padding: 20px; background: var(--verde-pale); border-radius: var(--radius); font-size: 13px; color: var(--ink-mid); }
-.rastreo-progress.visible { display: block; }
-.spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--verde-pale); border-top-color: var(--verde); border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; margin-right: 8px; }
+/* ── PROGRESS ──────────────────────────────────────────────────── */
+.progress-bar { background: var(--accent-pale); border-radius: var(--radius); padding: 14px 18px; display: none; align-items: center; gap: 12px; margin-bottom: 20px; }
+.progress-bar.visible { display: flex; }
+.spinner { width: 18px; height: 18px; border: 2.5px solid var(--accent-pale); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; flex-shrink: 0; }
 @keyframes spin { to { transform: rotate(360deg); } }
+.progress-text { font-size: 13px; color: var(--accent); font-weight: 500; }
 
-/* FILTROS */
-.filtros { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
-.filtro-btn { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: white; color: var(--ink-mid); font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
-.filtro-btn:hover, .filtro-btn.active { background: var(--ink); color: white; border-color: var(--ink); }
-.filtro-count { font-size: 10px; background: rgba(255,255,255,0.2); padding: 1px 5px; border-radius: 10px; margin-left: 4px; }
-.search-input { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: white; font-family: var(--font); font-size: 12px; color: var(--ink); outline: none; width: 200px; }
-.search-input:focus { border-color: var(--verde); }
-
-/* GRID DE MARCAS */
-.marcas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
-.marca-card { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; box-shadow: var(--shadow); transition: box-shadow 0.15s; cursor: pointer; position: relative; }
-.marca-card:hover { box-shadow: var(--shadow-lg); border-color: var(--verde-light); }
-.marca-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
-.marca-nombre { font-size: 15px; font-weight: 700; color: var(--ink); line-height: 1.3; }
-.marca-web { font-size: 11px; color: var(--ink-soft); margin-top: 2px; }
-.badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
-.badge-rastreada { background: var(--bg-alt); color: var(--ink-soft); }
-.badge-aprobada { background: var(--warn-bg); color: var(--warn); }
-.badge-contactada { background: var(--success-bg); color: var(--success); }
-.marca-meta { display: flex; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
-.meta-item { font-size: 11px; color: var(--ink-soft); display: flex; align-items: center; gap: 4px; }
-.meta-item strong { color: var(--ink-mid); font-weight: 600; }
-.marca-desc { font-size: 12px; color: var(--ink-mid); line-height: 1.5; margin-bottom: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.marca-rrss { display: flex; gap: 6px; margin-bottom: 14px; }
-.rrss-link { width: 26px; height: 26px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; background: var(--bg-alt); text-decoration: none; font-size: 12px; transition: background 0.15s; }
-.rrss-link:hover { background: var(--verde-pale); }
-.marca-actions { display: flex; gap: 8px; padding-top: 12px; border-top: 1px solid var(--border); }
-.marca-aprobada-banner { position: absolute; top: 12px; right: 12px; }
-
-/* DETALLE / MODAL */
-.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(26,61,46,0.6); z-index: 200; align-items: center; justify-content: center; padding: 24px; }
-.modal-overlay.open { display: flex; }
-.modal { background: white; border-radius: var(--radius-lg); max-width: 700px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg); }
-.modal-header { padding: 24px 28px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: flex-start; position: sticky; top: 0; background: white; z-index: 1; }
-.modal-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: var(--ink); }
-.modal-close { width: 32px; height: 32px; border-radius: var(--radius); border: 1px solid var(--border); background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--ink-soft); flex-shrink: 0; }
-.modal-close:hover { background: var(--danger-bg); color: var(--danger); border-color: var(--danger); }
-.modal-body { padding: 24px 28px; }
-.modal-footer { padding: 16px 28px 24px; border-top: 1px solid var(--border); display: flex; gap: 10px; flex-wrap: wrap; }
-.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
-.detail-field { }
-.detail-label { font-size: 11px; font-weight: 600; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
-.detail-value { font-size: 13px; color: var(--ink); }
-.detail-value a { color: var(--verde); text-decoration: none; }
-.detail-value a:hover { text-decoration: underline; }
-.section-title { font-size: 12px; font-weight: 700; color: var(--ink); text-transform: uppercase; letter-spacing: 0.06em; margin: 20px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
-
-/* MAIL PREVIEW */
-.mail-preview { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
-.mail-asunto { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
-.mail-cuerpo { font-size: 13px; color: var(--ink-mid); line-height: 1.8; white-space: pre-wrap; }
-.mail-estado { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 10px; }
-.mail-borrador { background: var(--bg-alt); color: var(--ink-soft); }
-.mail-enviado { background: var(--success-bg); color: var(--success); }
-
-/* FASE 2: contacto */
-.contacto-section { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 20px; }
-.contacto-titulo { font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
-.contacto-sub { font-size: 12px; color: var(--ink-soft); margin-bottom: 20px; }
-.marcas-aprobadas-list { display: flex; flex-direction: column; gap: 12px; }
-.marca-contacto-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg); gap: 12px; flex-wrap: wrap; }
-.marca-contacto-info { flex: 1; min-width: 200px; }
-.marca-contacto-nombre { font-size: 14px; font-weight: 700; color: var(--ink); }
-.marca-contacto-meta { font-size: 11px; color: var(--ink-soft); margin-top: 2px; }
-.marca-contacto-actions { display: flex; gap: 8px; flex-shrink: 0; }
-
-/* EMPTY STATE */
+/* ── CARDS GRID ────────────────────────────────────────────────── */
+.cards-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.cards-title { font-size: 13px; font-weight: 600; color: var(--ink-mid); }
+.cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
 .empty-state { text-align: center; padding: 60px 24px; color: var(--ink-soft); }
-.empty-icon { font-size: 48px; margin-bottom: 16px; }
-.empty-title { font-size: 16px; font-weight: 600; color: var(--ink-mid); margin-bottom: 8px; }
+.empty-icon { font-size: 40px; margin-bottom: 12px; }
+.empty-title { font-size: 16px; font-weight: 600; color: var(--ink-mid); margin-bottom: 6px; }
 .empty-sub { font-size: 13px; }
 
-/* TOAST */
-.toast { position: fixed; bottom: 24px; right: 24px; background: var(--ink); color: white; padding: 12px 20px; border-radius: var(--radius); font-size: 13px; font-weight: 500; box-shadow: var(--shadow-lg); z-index: 999; transform: translateY(80px); opacity: 0; transition: all 0.3s; }
-.toast.show { transform: translateY(0); opacity: 1; }
-.toast.success { background: var(--success); }
-.toast.error { background: var(--danger); }
+/* ── MARCA CARD ─────────────────────────────────────────────────── */
+.marca-card { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow); transition: box-shadow 0.15s; }
+.marca-card:hover { box-shadow: var(--shadow-lg); }
+.card-header { padding: 16px 18px 14px; border-bottom: 1px solid var(--bg-alt); display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.card-initial { width: 42px; height: 42px; border-radius: 8px; background: var(--accent-pale); color: var(--accent); font-size: 17px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.card-name-block { flex: 1; min-width: 0; }
+.card-name { font-size: 15px; font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-web { font-size: 11px; color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-web a { color: var(--accent); text-decoration: none; }
+.card-web a:hover { text-decoration: underline; }
+.card-badges { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+.badge { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.04em; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; }
+.badge-luxury { background: #1A1A1A; color: #D4AF37; }
+.badge-premium { background: var(--accent-pale); color: var(--accent); }
+.badge-nueva { background: var(--verde-pale); color: var(--verde); }
+.badge-pais { background: var(--bg-alt); color: var(--ink-mid); font-weight: 500; font-size: 10px; padding: 2px 7px; border-radius: 4px; }
 
-/* TABS EN MODAL */
-.modal-tabs { display: flex; gap: 0; border-bottom: 2px solid var(--border); margin-bottom: 20px; }
-.modal-tab { padding: 10px 16px; font-size: 12px; font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; color: var(--ink-soft); background: none; border-top: none; border-left: none; border-right: none; font-family: var(--font); transition: all 0.15s; }
-.modal-tab.active { color: var(--verde); border-bottom-color: var(--verde); }
-.tab-panel { display: none; }
-.tab-panel.active { display: block; }
+.card-body { padding: 14px 18px; }
+.field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; margin-bottom: 10px; }
+.field-item { display: flex; flex-direction: column; }
+.field-label { font-size: 10px; font-weight: 600; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.05em; }
+.field-val { font-size: 12px; color: var(--ink); font-weight: 500; }
+.field-val.muted { color: var(--ink-soft); font-style: italic; font-weight: 400; }
+.card-desc { font-size: 12px; color: var(--ink-mid); line-height: 1.5; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--bg-alt); }
+.social-row { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+.social-link { font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 4px; background: var(--bg-alt); color: var(--ink-mid); text-decoration: none; }
+.social-link:hover { background: var(--accent-pale); color: var(--accent); }
+
+.card-footer { padding: 12px 18px; border-top: 1px solid var(--bg-alt); display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+.btn-aprobar { background: var(--verde-pale); color: var(--verde); border: 1px solid var(--verde); }
+.btn-aprobar:hover { background: var(--verde); color: white; }
+.btn-descartar { background: var(--danger-bg); color: var(--danger); border: 1px solid #f5b7b7; }
+.btn-descartar:hover { background: var(--danger); color: white; }
+.btn-mail { background: var(--accent-pale); color: var(--accent); border: 1px solid var(--accent); }
+.btn-mail:hover { background: var(--accent); color: white; }
+.btn-enviado { background: var(--success-bg); color: var(--success); border: 1px solid #a8d5b8; cursor: default; }
+.aprobada-badge { display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; color: var(--verde); }
+.aprobada-badge::before { content: '✓'; font-size: 12px; }
+
+/* ── MODAL ──────────────────────────────────────────────────────── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(26,43,31,0.6); z-index: 200; display: none; align-items: center; justify-content: center; padding: 24px; backdrop-filter: blur(3px); }
+.modal-overlay.open { display: flex; }
+.modal { background: white; border-radius: var(--radius-lg); max-width: 560px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg); }
+.modal-header { padding: 24px 28px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; position: sticky; top: 0; background: white; z-index: 1; }
+.modal-title { font-size: 17px; font-weight: 700; color: var(--ink); }
+.modal-sub { font-size: 12px; color: var(--ink-soft); margin-top: 3px; }
+.modal-close { background: none; border: none; color: var(--ink-soft); font-size: 20px; cursor: pointer; padding: 2px 6px; border-radius: 4px; line-height: 1; flex-shrink: 0; }
+.modal-close:hover { background: var(--bg-alt); color: var(--ink); }
+.modal-body { padding: 24px 28px; }
+.modal-footer { padding: 16px 28px 24px; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; }
+
+/* Modal descarte */
+.motivos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+.motivo-opt { padding: 10px 12px; border: 1.5px solid var(--border); border-radius: var(--radius); cursor: pointer; font-size: 12px; transition: all 0.12s; }
+.motivo-opt:hover { border-color: var(--accent); }
+.motivo-opt.selected { border-color: var(--accent); background: var(--accent-pale); color: var(--accent); font-weight: 600; }
+.modal-textarea { width: 100%; min-height: 80px; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: var(--radius); font-family: var(--font); font-size: 13px; resize: vertical; outline: none; color: var(--ink); }
+.modal-textarea:focus { border-color: var(--accent); }
+
+/* Modal aprobación con clasificación */
+.clasificacion-opts { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+.clasif-opt { padding: 14px 10px; border: 2px solid var(--border); border-radius: var(--radius-lg); cursor: pointer; text-align: center; transition: all 0.12s; }
+.clasif-opt:hover { border-color: var(--accent); }
+.clasif-opt.selected { border-color: var(--accent); background: var(--accent-pale); }
+.clasif-opt.sel-lujo.selected { border-color: #1A1A1A; background: #1A1A1A; }
+.clasif-opt.sel-nueva.selected { border-color: var(--verde); background: var(--verde-pale); }
+.clasif-icon { font-size: 22px; margin-bottom: 6px; }
+.clasif-name { font-size: 12px; font-weight: 700; color: var(--ink); }
+.clasif-desc { font-size: 10px; color: var(--ink-soft); margin-top: 2px; }
+.clasif-opt.sel-lujo.selected .clasif-name,
+.clasif-opt.sel-lujo.selected .clasif-desc { color: #D4AF37; }
+.clasif-opt.sel-nueva.selected .clasif-name { color: var(--verde); }
+
+/* Modal mail */
+.mail-preview { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 16px; }
+.mail-asunto { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+.mail-meta { font-size: 11px; color: var(--ink-soft); margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+.mail-cuerpo { font-size: 13px; color: var(--ink); white-space: pre-wrap; line-height: 1.7; }
+.mail-loading { text-align: center; padding: 32px; color: var(--ink-soft); }
+.mail-error { color: var(--danger); font-size: 13px; padding: 12px; background: var(--danger-bg); border-radius: var(--radius); }
+
+/* ── TABS VISTA ─────────────────────────────────────────────────── */
+.view-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+.view-title { font-family: var(--font-serif); font-size: 22px; font-weight: 600; color: var(--ink); }
+.view-subtitle { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+.filter-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.filter-select { padding: 7px 12px; border: 1.5px solid var(--border); border-radius: var(--radius); font-family: var(--font); font-size: 12px; color: var(--ink); background: white; outline: none; cursor: pointer; }
+.filter-select:focus { border-color: var(--accent); }
+
+/* ── RESPONSIVE ─────────────────────────────────────────────────── */
+@media (max-width: 680px) {
+  .header-stats { display: none; }
+  .cards-grid { grid-template-columns: 1fr; }
+  .field-grid { grid-template-columns: 1fr; }
+  .clasificacion-opts { grid-template-columns: 1fr; }
+  .motivos-grid { grid-template-columns: 1fr; }
+  .search-main { flex-direction: column; }
+  .header-tabs { gap: 0; }
+  .tab-btn { padding: 7px 10px; font-size: 11px; }
+}
 </style>
 </head>
 <body>
 
 <!-- LOGIN -->
-<div id="loginView">
-  <div class="login-wrapper">
-    <div class="login-card">
-      <div class="login-logo">
-        <img src="https://mapa-sector-ubrique.pages.dev/logo-asopiel.png" alt="Asopiel" onerror="this.style.display='none'">
-        <div>
-          <div style="font-size:18px;font-weight:700;color:var(--ink);">Marcadar</div>
-          <div style="font-size:11px;color:var(--ink-soft);">Asopiel · Piel de Ubrique</div>
-        </div>
-      </div>
-      <div class="login-title">Acceso al panel</div>
-      <div class="login-sub">Radar de marcas potenciales para la marroquinería de Ubrique</div>
-      <div id="loginError" class="login-error"></div>
-      <div class="field">
-        <label>Contraseña</label>
-        <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
-      </div>
-      <button class="btn btn-primary btn-full" onclick="doLogin()" id="loginBtn">Entrar</button>
-      <div style="font-size:11px;color:var(--ink-soft);text-align:center;margin-top:16px;">Panel interno · Solo uso Asopiel</div>
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="login-badge">Asopiel · Herramienta interna</div>
+    <div class="login-title">Marcadar</div>
+    <div class="login-sub">Radar de marcas potenciales para el ecosistema de Ubrique</div>
+    <div class="field">
+      <label>Contraseña de acceso</label>
+      <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password">
     </div>
+    <button class="btn-primary" id="loginBtn" onclick="doLogin()">Entrar</button>
+    <div class="login-error" id="loginError">Contraseña incorrecta</div>
   </div>
 </div>
 
 <!-- APP -->
-<div id="app" style="display:none;">
+<div class="app" id="app">
 
-  <!-- Header -->
-  <div class="header">
+  <!-- HEADER -->
+  <header class="header">
     <div class="header-inner">
-      <a class="logo" href="#">
-        <img src="https://mapa-sector-ubrique.pages.dev/logo-asopiel.png" alt="Asopiel" onerror="this.style.display='none'" style="height:36px;">
-        <div class="logo-text">
-          <span class="logo-title">Marcadar</span>
-          <span class="logo-sub">Radar de Marcas · Asopiel</span>
+      <div class="header-brand">
+        <div class="brand-dot"></div>
+        <span class="brand-name">Marcadar</span>
+        <span class="brand-by">· Asopiel</span>
+      </div>
+      <div class="header-divider"></div>
+      <nav class="header-tabs">
+        <button class="tab-btn active" onclick="switchTab('hoy')" id="tab-hoy">
+          Detectadas hoy <span class="tab-count" id="cnt-hoy">0</span>
+        </button>
+        <button class="tab-btn" onclick="switchTab('lista')" id="tab-lista">
+          Mi lista <span class="tab-count" id="cnt-lista">0</span>
+        </button>
+        <button class="tab-btn" onclick="switchTab('descartadas')" id="tab-descartadas">
+          Descartadas <span class="tab-count" id="cnt-desc">0</span>
+        </button>
+      </nav>
+      <div class="header-stats">
+        <div class="stat-pill"><span class="stat-num" id="stat-total">—</span><span class="stat-label">Total</span></div>
+        <div class="stat-pill"><span class="stat-num" id="stat-contactadas">—</span><span class="stat-label">Contactadas</span></div>
+        <div class="stat-pill"><span class="stat-num" id="stat-paises">—</span><span class="stat-label">Países</span></div>
+      </div>
+      <button class="header-logout" onclick="doLogout()">Salir</button>
+    </div>
+  </header>
+
+  <main class="main">
+
+    <!-- VISTA: HOY -->
+    <div class="view active" id="view-hoy">
+      <div class="search-panel">
+        <div class="search-panel-title">Búsqueda autónoma por país</div>
+
+        <!-- Selector de país -->
+        <div style="margin-bottom: 16px;">
+          <div style="font-size: 11px; font-weight: 600; color: var(--ink-soft); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.05em;">País de búsqueda</div>
+          <div class="pais-selector" id="paisSelector">
+            <div class="pais-chip dia selected" data-pais="España" onclick="selectPais(this)">
+              🇪🇸 España <span style="font-size:10px;opacity:0.7">(hoy)</span>
+            </div>
+            <div class="pais-chip" data-pais="Francia" onclick="selectPais(this)">🇫🇷 Francia</div>
+            <div class="pais-chip" data-pais="Reino Unido" onclick="selectPais(this)">🇬🇧 Reino Unido</div>
+            <div class="pais-chip" data-pais="Italia" onclick="selectPais(this)">🇮🇹 Italia</div>
+            <div class="pais-chip" data-pais="Alemania" onclick="selectPais(this)">🇩🇪 Alemania</div>
+            <div class="pais-chip" data-pais="Estados Unidos" onclick="selectPais(this)">🇺🇸 EE.UU.</div>
+            <div class="pais-chip" data-pais="Portugal" onclick="selectPais(this)">🇵🇹 Portugal</div>
+          </div>
+          <!-- Nuevo país -->
+          <div class="pais-nuevo-wrapper" style="margin-top: 10px;">
+            <input type="text" class="pais-nuevo-input" id="paisNuevoInput" placeholder="+ Otro país...">
+            <button class="btn btn-sm btn-outline" onclick="addPaisNuevo()">Añadir</button>
+          </div>
         </div>
-      </a>
-      <div class="header-nav-wrapper">
-        <div class="header-nav">
-          <button class="nav-btn active" onclick="showView('rastreo')">① Rastreo</button>
-          <button class="nav-btn" onclick="showView('contacto')">② Contacto</button>
+
+        <button class="btn btn-green" id="btnBuscarPais" onclick="buscarPorPais()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          Buscar marcas en <span id="paisBtnLabel">España</span>
+        </button>
+
+        <div class="search-divider"></div>
+
+        <div class="search-panel-title">Buscar marca concreta</div>
+        <div class="search-main">
+          <input type="text" class="search-input" id="marcaInput" placeholder="Nombre o web de la marca (ej: loewe.com, Jacquemus...)" onkeydown="if(event.key==='Enter')rastrearMarca()">
+          <button class="btn btn-accent" id="btnRastrear" onclick="rastrearMarca()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            Rastrear
+          </button>
         </div>
-        <div class="header-stats" id="headerStats">
-          <div class="stat-chip"><span class="stat-chip-num" id="statTotal">—</span><span class="stat-chip-label">Total</span></div>
-          <div class="stat-chip"><span class="stat-chip-num" id="statAprobadas">—</span><span class="stat-chip-label">Aprobadas</span></div>
-          <div class="stat-chip"><span class="stat-chip-num" id="statContactadas">—</span><span class="stat-chip-label">Contactadas</span></div>
-          <div class="stat-chip"><span class="stat-chip-num" id="statPaises">—</span><span class="stat-chip-label">Países</span></div>
+      </div>
+
+      <!-- Progress -->
+      <div class="progress-bar" id="progressBar">
+        <div class="spinner"></div>
+        <div class="progress-text" id="progressText">Buscando marcas...</div>
+      </div>
+
+      <!-- Cards hoy -->
+      <div class="cards-header">
+        <div class="cards-title" id="cardsHoyTitle">Marcas de hoy</div>
+        <div class="filter-row">
+          <select class="filter-select" onchange="filtrarHoy(this.value)">
+            <option value="">Todos los segmentos</option>
+            <option value="luxury">Luxury</option>
+            <option value="premium">Premium</option>
+            <option value="mid-market">Mid-market</option>
+          </select>
         </div>
       </div>
-    </div>
-  </div>
-
-  <!-- VISTA: Rastreo (Fase 1) -->
-  <div id="viewRastreo" class="view active">
-    <div class="page-header">
-      <div>
-        <div class="page-title">① Rastreo de marcas</div>
-        <div class="page-sub">Introduce el nombre o URL de una marca para que la IA extraiga su perfil completo</div>
-      </div>
-    </div>
-
-    <!-- Barra de rastreo -->
-    <div class="rastreo-bar">
-      <div class="field" style="flex:1;margin:0;">
-        <label>Nombre o URL de la marca</label>
-        <input type="text" id="rastreoInput" placeholder="ej: Loewe, www.loewe.com, Gucci bolsos..." onkeydown="if(event.key==='Enter')doRastreo()">
-      </div>
-      <button class="btn btn-primary" onclick="doRastreo()" id="rastreoBtn">
-        <span class="spinner" id="rastreoSpinner" style="display:none;"></span>
-        Rastrear con IA
-      </button>
-    </div>
-    <div class="rastreo-progress" id="rastreoProgress">
-      <span class="spinner"></span> La IA está buscando información sobre esta marca… puede tardar unos segundos
-    </div>
-
-    <!-- Filtros -->
-    <div class="filtros">
-      <button class="filtro-btn active" onclick="setFiltro('todas', this)">Todas <span class="filtro-count" id="cntTodas">0</span></button>
-      <button class="filtro-btn" onclick="setFiltro('rastreada', this)">Rastreadas <span class="filtro-count" id="cntRastreadas">0</span></button>
-      <button class="filtro-btn" onclick="setFiltro('aprobada', this)">Aprobadas <span class="filtro-count" id="cntAprobadas">0</span></button>
-      <button class="filtro-btn" onclick="setFiltro('contactada', this)">Contactadas <span class="filtro-count" id="cntContactadas">0</span></button>
-      <input type="text" class="search-input" id="searchInput" placeholder="🔍 Buscar marca, país..." oninput="renderMarcas()">
-    </div>
-
-    <!-- Grid de marcas -->
-    <div class="marcas-grid" id="marcasGrid">
-      <div class="empty-state" style="grid-column:1/-1;">
-        <div class="empty-icon">🔍</div>
-        <div class="empty-title">Sin marcas rastreadas aún</div>
-        <div class="empty-sub">Introduce el nombre o URL de una marca arriba para empezar</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- VISTA: Contacto (Fase 2) -->
-  <div id="viewContacto" class="view">
-    <div class="page-header">
-      <div>
-        <div class="page-title">② Contacto con marcas</div>
-        <div class="page-sub">Marcas aprobadas listas para recibir el primer mail de presentación de Asopiel</div>
-      </div>
-    </div>
-
-    <div class="contacto-section">
-      <div class="contacto-titulo">Marcas aprobadas para contacto</div>
-      <div class="contacto-sub">Estas marcas han sido seleccionadas en la Fase 1. Genera el mail personalizado en su idioma y envíalo con un clic.</div>
-      <div class="marcas-aprobadas-list" id="marcasAprobadasList">
+      <div class="cards-grid" id="cardsHoy">
         <div class="empty-state">
-          <div class="empty-icon">✉️</div>
-          <div class="empty-title">Sin marcas aprobadas aún</div>
-          <div class="empty-sub">Ve a la Fase 1, abre una marca y apruébala para contacto</div>
+          <div class="empty-icon">🎯</div>
+          <div class="empty-title">Empieza a buscar</div>
+          <div class="empty-sub">Elige un país y pulsa "Buscar marcas" para que la IA encuentre candidatos</div>
         </div>
       </div>
     </div>
-  </div>
 
+    <!-- VISTA: MI LISTA -->
+    <div class="view" id="view-lista">
+      <div class="view-header">
+        <div>
+          <div class="view-title">Mi lista</div>
+          <div class="view-subtitle">Marcas aprobadas para contacto</div>
+        </div>
+        <div class="filter-row">
+          <select class="filter-select" id="filtroListaPais" onchange="cargarLista()">
+            <option value="">Todos los países</option>
+          </select>
+          <select class="filter-select" onchange="filtrarLista(this.value)">
+            <option value="">Todos</option>
+            <option value="pendiente">Pendientes de envío</option>
+            <option value="enviado">Correo enviado</option>
+          </select>
+        </div>
+      </div>
+      <div class="cards-grid" id="cardsLista">
+        <div class="empty-state">
+          <div class="empty-icon">📋</div>
+          <div class="empty-title">Lista vacía</div>
+          <div class="empty-sub">Aprueba marcas desde "Detectadas hoy" para añadirlas aquí</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VISTA: DESCARTADAS -->
+    <div class="view" id="view-descartadas">
+      <div class="view-header">
+        <div>
+          <div class="view-title">Descartadas</div>
+          <div class="view-subtitle">Marcas que no encajan actualmente</div>
+        </div>
+      </div>
+      <div class="cards-grid" id="cardsDescartadas">
+        <div class="empty-state">
+          <div class="empty-icon">🗂️</div>
+          <div class="empty-title">Sin descartes</div>
+          <div class="empty-sub">Las marcas que descartes aparecerán aquí y no se repetirán en búsquedas futuras</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
 </div>
 
-<!-- MODAL DETALLE MARCA -->
-<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
-  <div class="modal" id="modal">
+<!-- MODAL: DESCARTAR -->
+<div class="modal-overlay" id="modalDescartar">
+  <div class="modal">
     <div class="modal-header">
       <div>
-        <div class="modal-title" id="modalTitle">—</div>
-        <div id="modalBadge" style="margin-top:6px;"></div>
+        <div class="modal-title">Descartar marca</div>
+        <div class="modal-sub" id="descartarNombre"></div>
       </div>
-      <button class="modal-close" onclick="closeModal()">✕</button>
+      <button class="modal-close" onclick="closeModal('modalDescartar')">✕</button>
     </div>
     <div class="modal-body">
-      <div class="modal-tabs">
-        <button class="modal-tab active" onclick="showTab('tabPerfil', this)">Perfil</button>
-        <button class="modal-tab" onclick="showTab('tabEditar', this)">Editar</button>
-        <button class="modal-tab" onclick="showTab('tabMails', this)">Mails</button>
+      <div style="font-size: 12px; font-weight: 600; color: var(--ink-soft); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.05em;">Motivo del descarte</div>
+      <div class="motivos-grid">
+        <div class="motivo-opt" onclick="selectMotivo(this, 'Segmento no adecuado')">Segmento no adecuado</div>
+        <div class="motivo-opt" onclick="selectMotivo(this, 'Ya fabrica en Ubrique')">Ya fabrica en Ubrique</div>
+        <div class="motivo-opt" onclick="selectMotivo(this, 'Sin interés aparente')">Sin interés aparente</div>
+        <div class="motivo-opt" onclick="selectMotivo(this, 'Precio demasiado bajo')">Precio demasiado bajo</div>
+        <div class="motivo-opt" onclick="selectMotivo(this, 'Volumen insuficiente')">Volumen insuficiente</div>
+        <div class="motivo-opt" onclick="selectMotivo(this, 'Otro motivo')">Otro motivo</div>
       </div>
-
-      <!-- TAB PERFIL -->
-      <div class="tab-panel active" id="tabPerfil">
-        <div class="detail-grid" id="detailGrid"></div>
-        <div id="detailRrss"></div>
-        <div id="detailDesc"></div>
-        <div id="detailNotas"></div>
-      </div>
-
-      <!-- TAB EDITAR -->
-      <div class="tab-panel" id="tabEditar">
-        <div id="editForm"></div>
-      </div>
-
-      <!-- TAB MAILS -->
-      <div class="tab-panel" id="tabMails">
-        <div id="mailsContent"></div>
-      </div>
+      <textarea class="modal-textarea" id="descartarNota" placeholder="Notas adicionales (opcional)..."></textarea>
     </div>
-    <div class="modal-footer" id="modalFooter"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modalDescartar')">Cancelar</button>
+      <button class="btn btn-descartar" onclick="confirmarDescartar()">Descartar</button>
+    </div>
   </div>
 </div>
 
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
+<!-- MODAL: APROBAR (con clasificación) -->
+<div class="modal-overlay" id="modalAprobar">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Aprobar para contacto</div>
+        <div class="modal-sub" id="aprobarNombre"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal('modalAprobar')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="font-size: 12px; font-weight: 600; color: var(--ink-soft); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em;">Clasificación de contacto</div>
+      <div class="clasificacion-opts">
+        <div class="clasif-opt sel-lujo" onclick="selectClasif(this, 'lujo')">
+          <div class="clasif-icon">💎</div>
+          <div class="clasif-name">Lujo</div>
+          <div class="clasif-desc">Heritage, > 200€ bolso</div>
+        </div>
+        <div class="clasif-opt sel-premium selected" onclick="selectClasif(this, 'premium')">
+          <div class="clasif-icon">⭐</div>
+          <div class="clasif-name">Premium</div>
+          <div class="clasif-desc">En crecimiento, 50-200€</div>
+        </div>
+        <div class="clasif-opt sel-nueva" onclick="selectClasif(this, 'nueva')">
+          <div class="clasif-icon">🌱</div>
+          <div class="clasif-name">Nueva</div>
+          <div class="clasif-desc">Emergente, &lt; 50€</div>
+        </div>
+      </div>
+      <div style="font-size: 12px; color: var(--ink-soft); background: var(--bg-alt); padding: 12px; border-radius: var(--radius);">
+        La clasificación determina la plantilla del correo que se generará al contactar con esta marca.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modalAprobar')">Cancelar</button>
+      <button class="btn btn-aprobar" onclick="confirmarAprobar()">✓ Aprobar y añadir a mi lista</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: CORREO -->
+<div class="modal-overlay" id="modalMail">
+  <div class="modal" style="max-width: 640px;">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Correo de contacto</div>
+        <div class="modal-sub" id="mailNombre"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal('modalMail')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="mailContent">
+        <div class="mail-loading">
+          <div class="spinner" style="margin: 0 auto 12px; width:24px; height:24px;"></div>
+          Generando correo personalizado...
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer" id="mailFooter" style="display:none;">
+      <button class="btn btn-outline" onclick="closeModal('modalMail')">Cerrar</button>
+      <button class="btn btn-accent" onclick="copiarMail()" id="btnCopiarMail">📋 Copiar correo</button>
+      <button class="btn btn-green" onclick="enviarMail()" id="btnEnviarMail">✉️ Enviar por Resend</button>
+    </div>
+  </div>
+</div>
 
 <script>
-// ─── Config ────────────────────────────────────────────────────────────────
+// ─── CONFIG ────────────────────────────────────────────────────────────────
 const API = 'https://marcadar.asopielubrique.workers.dev';
-let TOKEN = localStorage.getItem('marcadar_token') || '';
-let marcasData = [];
-let filtroActual = 'todas';
-let marcaActual = null;
+let token = localStorage.getItem('marcadar_token') || '';
 
-// ─── Auth ──────────────────────────────────────────────────────────────────
+// ─── ESTADO ────────────────────────────────────────────────────────────────
+let marcasHoy = [];
+let marcasHoyFiltradas = [];
+let paisSeleccionado = '';
+let currentTab = 'hoy';
+let descartarId = null;
+let descartarMotivoVal = '';
+let aprobarId = null;
+let clasifSeleccionada = 'premium';
+let mailActual = null;
+let mailMarcaId = null;
+let mailId = null;
+
+// ─── AUTH ──────────────────────────────────────────────────────────────────
 async function doLogin() {
-  const pass = document.getElementById('loginPassword').value;
+  const pass = document.getElementById('loginPass').value.trim();
   if (!pass) return;
-  const btn = document.getElementById('loginBtn');
-  btn.disabled = true; btn.textContent = 'Entrando…';
-  try {
-    const r = await api('POST', '/login', { password: pass });
-    TOKEN = r.token;
-    localStorage.setItem('marcadar_token', TOKEN);
-    initApp();
-  } catch(e) {
-    const el = document.getElementById('loginError');
-    el.textContent = 'Contraseña incorrecta'; el.style.display = 'block';
-  } finally {
-    btn.disabled = false; btn.textContent = 'Entrar';
+  document.getElementById('loginBtn').disabled = true;
+  document.getElementById('loginError').style.display = 'none';
+
+  const res = await fetch(`${API}/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ password: pass })
+  }).catch(() => null);
+
+  document.getElementById('loginBtn').disabled = false;
+
+  if (!res || !res.ok) {
+    document.getElementById('loginError').style.display = 'block';
+    return;
   }
+  const data = await res.json();
+  token = data.token;
+  localStorage.setItem('marcadar_token', token);
+  initApp();
 }
 
-document.getElementById('loginPassword').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
-
-// ─── API helper ────────────────────────────────────────────────────────────
-async function api(method, path, body) {
-  const opts = {
-    method,
-    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOKEN}` },
-  };
-  if (body) opts.body = JSON.stringify(body);
-  const r = await fetch(API + path, opts);
-  const data = await r.json();
-  if (!r.ok) throw new Error(data.error || 'Error de servidor');
-  return data;
+function doLogout() {
+  token = '';
+  localStorage.removeItem('marcadar_token');
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('app').classList.remove('visible');
 }
 
-// ─── Init ──────────────────────────────────────────────────────────────────
+document.getElementById('loginPass').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+
+function headers() {
+  return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
+}
+
+// ─── INIT ──────────────────────────────────────────────────────────────────
 async function initApp() {
-  document.getElementById('loginView').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
-  await Promise.all([loadStats(), loadMarcas()]);
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('app').classList.add('visible');
+  await Promise.all([
+    cargarStats(),
+    initPaisDelDia()
+  ]);
 }
 
-async function loadStats() {
-  try {
-    const r = await api('GET', '/stats');
-    const s = r.data;
-    document.getElementById('statTotal').textContent = s.total || 0;
-    document.getElementById('statAprobadas').textContent = s.aprobadas || 0;
-    document.getElementById('statContactadas').textContent = s.contactadas || 0;
-    document.getElementById('statPaises').textContent = s.paises || 0;
-  } catch(e) {}
-}
+async function initPaisDelDia() {
+  const res = await fetch(`${API}/pais-del-dia`, { headers: headers() }).catch(() => null);
+  if (!res || !res.ok) return;
+  const data = await res.json();
+  const pais = data.pais;
+  paisSeleccionado = pais;
 
-async function loadMarcas() {
-  try {
-    const r = await api('GET', '/marcas');
-    marcasData = r.data || [];
-    renderMarcas();
-    renderMarcasAprobadas();
-    updateCounts();
-  } catch(e) {
-    if (e.message.includes('autenticado')) {
-      TOKEN = '';
-      localStorage.removeItem('marcadar_token');
-      document.getElementById('loginView').style.display = 'block';
-      document.getElementById('app').style.display = 'none';
+  // Actualizar chips
+  document.querySelectorAll('.pais-chip').forEach(c => {
+    c.classList.remove('selected');
+    if (c.dataset.pais === pais) {
+      c.classList.add('selected');
+      // Marcar como "hoy" solo el de la rotación base
+      const isPaisBase = ['España','Francia','Reino Unido'].includes(pais);
+      if (isPaisBase && c.classList.contains('dia')) {
+        c.innerHTML = `${c.innerHTML.split('<span')[0]} <span style="font-size:10px;opacity:0.7">(hoy)</span>`;
+      }
     }
-  }
-}
-
-// ─── Filtros y render ──────────────────────────────────────────────────────
-function setFiltro(filtro, btn) {
-  filtroActual = filtro;
-  document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderMarcas();
-}
-
-function updateCounts() {
-  document.getElementById('cntTodas').textContent = marcasData.length;
-  document.getElementById('cntRastreadas').textContent = marcasData.filter(m => !m.aprobada_contacto && !m.mail_enviado).length;
-  document.getElementById('cntAprobadas').textContent = marcasData.filter(m => m.aprobada_contacto && !m.mail_enviado).length;
-  document.getElementById('cntContactadas').textContent = marcasData.filter(m => m.mail_enviado).length;
-}
-
-function filtrarMarcas() {
-  const q = (document.getElementById('searchInput')?.value || '').toLowerCase();
-  return marcasData.filter(m => {
-    if (filtroActual === 'rastreada' && (m.aprobada_contacto || m.mail_enviado)) return false;
-    if (filtroActual === 'aprobada' && (!m.aprobada_contacto || m.mail_enviado)) return false;
-    if (filtroActual === 'contactada' && !m.mail_enviado) return false;
-    if (q) {
-      const haystack = [m.nombre, m.pais, m.segmento, m.descripcion, m.web].join(' ').toLowerCase();
-      if (!haystack.includes(q)) return false;
-    }
-    return true;
   });
+  updateBtnLabel();
 }
 
-const BANDERAS = { es:'🇪🇸', fr:'🇫🇷', it:'🇮🇹', en:'🇬🇧', de:'🇩🇪', pt:'🇵🇹', ar:'🇸🇦', zh:'🇨🇳', ja:'🇯🇵', ko:'🇰🇷', nl:'🇳🇱', ru:'🇷🇺' };
-const RRSS_ICONS = { instagram:'📷', facebook:'👤', tiktok:'🎵', linkedin:'💼' };
-
-function estadoBadge(m) {
-  if (m.mail_enviado) return '<span class="badge badge-contactada">✓ Contactada</span>';
-  if (m.aprobada_contacto) return '<span class="badge badge-aprobada">✓ Aprobada</span>';
-  return '<span class="badge badge-rastreada">Rastreada</span>';
+function updateBtnLabel() {
+  document.getElementById('paisBtnLabel').textContent = paisSeleccionado || 'España';
 }
 
-function renderMarcas() {
-  const grid = document.getElementById('marcasGrid');
-  const lista = filtrarMarcas();
-  if (!lista.length) {
-    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">
-      <div class="empty-icon">🔍</div>
-      <div class="empty-title">${marcasData.length ? 'Sin resultados' : 'Sin marcas rastreadas aún'}</div>
-      <div class="empty-sub">${marcasData.length ? 'Cambia el filtro o la búsqueda' : 'Introduce el nombre o URL de una marca arriba para empezar'}</div>
-    </div>`;
+async function cargarStats() {
+  const res = await fetch(`${API}/stats`, { headers: headers() }).catch(() => null);
+  if (!res || !res.ok) return;
+  const { data } = await res.json();
+  document.getElementById('stat-total').textContent = data.total ?? 0;
+  document.getElementById('stat-contactadas').textContent = data.contactadas ?? 0;
+  document.getElementById('stat-paises').textContent = data.paises ?? 0;
+}
+
+// ─── SELECTOR DE PAÍS ──────────────────────────────────────────────────────
+function selectPais(el) {
+  document.querySelectorAll('.pais-chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  paisSeleccionado = el.dataset.pais;
+  updateBtnLabel();
+}
+
+function addPaisNuevo() {
+  const val = document.getElementById('paisNuevoInput').value.trim();
+  if (!val) return;
+
+  const selector = document.getElementById('paisSelector');
+  const chip = document.createElement('div');
+  chip.className = 'pais-chip';
+  chip.dataset.pais = val;
+  chip.textContent = val;
+  chip.onclick = () => selectPais(chip);
+  selector.appendChild(chip);
+
+  document.getElementById('paisNuevoInput').value = '';
+  selectPais(chip);
+}
+
+// ─── BÚSQUEDA POR PAÍS ─────────────────────────────────────────────────────
+async function buscarPorPais() {
+  const pais = paisSeleccionado;
+  if (!pais) return;
+
+  setProgress(true, `Buscando marcas en ${pais}...`);
+  document.getElementById('btnBuscarPais').disabled = true;
+  document.getElementById('btnRastrear').disabled = true;
+
+  const res = await fetch(`${API}/buscar-por-pais`, {
+    method: 'POST',
+    headers: headers(),
+    body: JSON.stringify({ pais })
+  }).catch(() => null);
+
+  setProgress(false);
+  document.getElementById('btnBuscarPais').disabled = false;
+  document.getElementById('btnRastrear').disabled = false;
+
+  if (!res || !res.ok) {
+    showToast('Error al buscar marcas. Inténtalo de nuevo.', 'error');
     return;
   }
-  grid.innerHTML = lista.map(m => `
-    <div class="marca-card" onclick="openMarca('${m.id}')">
-      <div class="marca-card-header">
-        <div>
-          <div class="marca-nombre">${m.nombre}</div>
-          ${m.web ? `<div class="marca-web">${m.web.replace(/^https?:\/\//, '')}</div>` : ''}
-        </div>
-        ${estadoBadge(m)}
-      </div>
-      <div class="marca-meta">
-        ${m.pais ? `<div class="meta-item"><strong>${m.pais}</strong></div>` : ''}
-        ${m.segmento ? `<div class="meta-item">· ${m.segmento}</div>` : ''}
-        ${m.precio_medio_bolso ? `<div class="meta-item">· ~${m.precio_medio_bolso}€</div>` : ''}
-        ${m.idioma ? `<div class="meta-item">${BANDERAS[m.idioma] || m.idioma}</div>` : ''}
-      </div>
-      ${m.descripcion ? `<div class="marca-desc">${m.descripcion}</div>` : ''}
-      <div class="marca-rrss">
-        ${['instagram','facebook','tiktok','linkedin'].filter(r => m[r]).map(r =>
-          `<a href="${m[r]}" target="_blank" class="rrss-link" onclick="event.stopPropagation()" title="${r}">${RRSS_ICONS[r]}</a>`
-        ).join('')}
-      </div>
-      <div class="marca-actions">
-        ${!m.aprobada_contacto && !m.mail_enviado
-          ? `<button class="btn btn-sm btn-success" onclick="event.stopPropagation();aprobarMarca('${m.id}')">✓ Aprobar para contacto</button>`
-          : ''}
-        ${m.aprobada_contacto && !m.mail_enviado
-          ? `<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();desaprobarMarca('${m.id}')">✕ Desaprobar</button>`
-          : ''}
-        <button class="btn btn-sm btn-outline" onclick="event.stopPropagation();openMarca('${m.id}')">Ver detalle</button>
-      </div>
-    </div>
-  `).join('');
+
+  const { data, total } = await res.json();
+  marcasHoy = data || [];
+  marcasHoyFiltradas = marcasHoy;
+
+  renderCards('cardsHoy', marcasHoy, 'hoy');
+  document.getElementById('cnt-hoy').textContent = marcasHoy.length;
+  document.getElementById('cardsHoyTitle').textContent = `${total} marcas encontradas en ${pais}`;
+  await cargarStats();
 }
 
-function renderMarcasAprobadas() {
-  const lista = marcasData.filter(m => m.aprobada_contacto && !m.mail_enviado);
-  const el = document.getElementById('marcasAprobadasList');
-  if (!lista.length) {
-    el.innerHTML = `<div class="empty-state">
-      <div class="empty-icon">✉️</div>
-      <div class="empty-title">Sin marcas aprobadas aún</div>
-      <div class="empty-sub">Ve a la Fase 1, abre una marca y apruébala para contacto</div>
-    </div>`;
+// ─── RASTREAR MARCA CONCRETA ───────────────────────────────────────────────
+async function rastrearMarca() {
+  const val = document.getElementById('marcaInput').value.trim();
+  if (!val) return;
+
+  setProgress(true, `Rastreando "${val}"...`);
+  document.getElementById('btnRastrear').disabled = true;
+  document.getElementById('btnBuscarPais').disabled = true;
+
+  const res = await fetch(`${API}/marcas/rastrear`, {
+    method: 'POST',
+    headers: headers(),
+    body: JSON.stringify({ url_o_nombre: val })
+  }).catch(() => null);
+
+  setProgress(false);
+  document.getElementById('btnRastrear').disabled = false;
+  document.getElementById('btnBuscarPais').disabled = false;
+
+  if (!res || !res.ok) {
+    showToast('Error al rastrear la marca. Inténtalo de nuevo.', 'error');
     return;
   }
-  el.innerHTML = lista.map(m => `
-    <div class="marca-contacto-row">
-      <div class="marca-contacto-info">
-        <div class="marca-contacto-nombre">${m.nombre} ${BANDERAS[m.idioma] || ''}</div>
-        <div class="marca-contacto-meta">${m.pais || ''}${m.email_contacto ? ' · ' + m.email_contacto : ''}${m.segmento ? ' · ' + m.segmento : ''}</div>
-      </div>
-      <div class="marca-contacto-actions">
-        ${m.email_contacto
-          ? `<button class="btn btn-sm btn-primary" onclick="generarYEnviarMail('${m.id}')">✉ Generar y enviar mail</button>`
-          : `<span style="font-size:11px;color:var(--danger);">⚠ Sin email de contacto</span>`}
-        <button class="btn btn-sm btn-outline" onclick="openMarca('${m.id}')">Ver</button>
-      </div>
-    </div>
-  `).join('');
+
+  const { id, data } = await res.json();
+  document.getElementById('marcaInput').value = '';
+
+  // Añadir al inicio de la lista de hoy
+  const marcaConId = { id, ...data };
+  marcasHoy.unshift(marcaConId);
+  marcasHoyFiltradas = marcasHoy;
+  renderCards('cardsHoy', marcasHoy, 'hoy');
+  document.getElementById('cnt-hoy').textContent = marcasHoy.length;
+  document.getElementById('cardsHoyTitle').textContent = `${marcasHoy.length} marcas`;
+  showToast(`"${data.nombre}" rastreada correctamente`, 'success');
+  await cargarStats();
 }
 
-// ─── Rastreo ───────────────────────────────────────────────────────────────
-async function doRastreo() {
-  const input = document.getElementById('rastreoInput');
-  const q = input.value.trim();
-  if (!q) return;
-
-  const btn = document.getElementById('rastreoBtn');
-  const spinner = document.getElementById('rastreoSpinner');
-  const progress = document.getElementById('rastreoProgress');
-
-  btn.disabled = true;
-  spinner.style.display = 'inline-block';
-  progress.classList.add('visible');
-
-  try {
-    const r = await api('POST', '/marcas/rastrear', { url_o_nombre: q });
-    input.value = '';
-    showToast(`✓ "${r.data.nombre}" rastreada correctamente`, 'success');
-    await Promise.all([loadMarcas(), loadStats()]);
-  } catch(e) {
-    showToast('Error en el rastreo: ' + e.message, 'error');
-  } finally {
-    btn.disabled = false;
-    spinner.style.display = 'none';
-    progress.classList.remove('visible');
-  }
+// ─── FILTROS HOY ───────────────────────────────────────────────────────────
+function filtrarHoy(segmento) {
+  marcasHoyFiltradas = segmento
+    ? marcasHoy.filter(m => m.segmento === segmento)
+    : marcasHoy;
+  renderCards('cardsHoy', marcasHoyFiltradas, 'hoy');
 }
 
-// ─── Aprobar / Desaprobar ──────────────────────────────────────────────────
-async function aprobarMarca(id) {
-  try {
-    await api('POST', `/marcas/${id}/aprobar`);
-    showToast('Marca aprobada para contacto', 'success');
-    await Promise.all([loadMarcas(), loadStats()]);
-  } catch(e) { showToast(e.message, 'error'); }
+// ─── CARGAR LISTA / DESCARTADAS ────────────────────────────────────────────
+async function cargarLista() {
+  const pais = document.getElementById('filtroListaPais')?.value || '';
+  const params = new URLSearchParams({ aprobada: '1' });
+  if (pais) params.set('pais', pais);
+
+  const res = await fetch(`${API}/marcas?${params}`, { headers: headers() }).catch(() => null);
+  if (!res || !res.ok) return;
+  const { data } = await res.json();
+  renderCards('cardsLista', data || [], 'lista');
+  document.getElementById('cnt-lista').textContent = (data || []).length;
+  poblarFiltroPaises(data || []);
 }
 
-async function desaprobarMarca(id) {
-  try {
-    await api('POST', `/marcas/${id}/desaprobar`);
-    showToast('Marca desaprobada', 'success');
-    await loadMarcas();
-  } catch(e) { showToast(e.message, 'error'); }
+function poblarFiltroPaises(marcas) {
+  const sel = document.getElementById('filtroListaPais');
+  if (!sel) return;
+  const paises = [...new Set(marcas.map(m => m.pais).filter(Boolean))].sort();
+  const current = sel.value;
+  sel.innerHTML = '<option value="">Todos los países</option>' +
+    paises.map(p => `<option value="${p}" ${p === current ? 'selected' : ''}>${p}</option>`).join('');
 }
 
-// ─── Modal detalle ─────────────────────────────────────────────────────────
-async function openMarca(id) {
-  marcaActual = marcasData.find(m => m.id === id);
-  if (!marcaActual) return;
-  const m = marcaActual;
+function filtrarLista(estado) {
+  // Re-renderiza con filtro de estado
+  // Simplificado: recarga con parámetro
+  const pais = document.getElementById('filtroListaPais')?.value || '';
+  const params = new URLSearchParams({ aprobada: '1' });
+  if (pais) params.set('pais', pais);
 
-  document.getElementById('modalTitle').textContent = m.nombre;
-  document.getElementById('modalBadge').innerHTML = estadoBadge(m);
-
-  // Tab Perfil
-  const campos = [
-    ['Web', m.web ? `<a href="${m.web}" target="_blank">${m.web}</a>` : '—'],
-    ['País', m.pais || '—'],
-    ['Idioma', (BANDERAS[m.idioma] || '') + ' ' + (m.idioma || '—')],
-    ['Segmento', m.segmento || '—'],
-    ['Precio medio bolso', m.precio_medio_bolso ? `${m.precio_medio_bolso}€` : '—'],
-    ['Facturación estimada', m.facturacion_estimada || '—'],
-    ['Fabricación en', m.lugar_fabricacion || '—'],
-    ['Email contacto', m.email_contacto || '—'],
-    ['Teléfono', m.telefono || '—'],
-  ];
-  document.getElementById('detailGrid').innerHTML = campos.map(([l,v]) =>
-    `<div class="detail-field"><div class="detail-label">${l}</div><div class="detail-value">${v}</div></div>`
-  ).join('');
-
-  const rrss = ['instagram','facebook','tiktok','linkedin'].filter(r => m[r]);
-  document.getElementById('detailRrss').innerHTML = rrss.length ? `
-    <div class="section-title">Redes sociales</div>
-    <div style="display:flex;flex-direction:column;gap:6px;">
-      ${rrss.map(r => `<div class="detail-value">${RRSS_ICONS[r]} <a href="${m[r]}" target="_blank">${m[r]}</a></div>`).join('')}
-    </div>` : '';
-
-  document.getElementById('detailDesc').innerHTML = m.descripcion ? `
-    <div class="section-title">Descripción</div>
-    <div class="detail-value" style="line-height:1.7;">${m.descripcion}</div>` : '';
-
-  document.getElementById('detailNotas').innerHTML = m.notas ? `
-    <div class="section-title">Notas para Asopiel</div>
-    <div class="detail-value" style="line-height:1.7;color:var(--ink-mid);">${m.notas}</div>` : '';
-
-  // Tab Editar
-  document.getElementById('editForm').innerHTML = `
-    <div class="field"><label>Nombre</label><input id="ef_nombre" value="${m.nombre||''}"></div>
-    <div class="field"><label>Web</label><input id="ef_web" value="${m.web||''}"></div>
-    <div class="field"><label>País</label><input id="ef_pais" value="${m.pais||''}"></div>
-    <div class="field"><label>Email contacto</label><input id="ef_email" value="${m.email_contacto||''}"></div>
-    <div class="field"><label>Teléfono</label><input id="ef_tel" value="${m.telefono||''}"></div>
-    <div class="field"><label>Lugar fabricación</label><input id="ef_fab" value="${m.lugar_fabricacion||''}"></div>
-    <div class="field"><label>Precio medio bolso (€)</label><input type="number" id="ef_precio" value="${m.precio_medio_bolso||''}"></div>
-    <div class="field"><label>Instagram</label><input id="ef_ig" value="${m.instagram||''}"></div>
-    <div class="field"><label>Facebook</label><input id="ef_fb" value="${m.facebook||''}"></div>
-    <div class="field"><label>TikTok</label><input id="ef_tt" value="${m.tiktok||''}"></div>
-    <div class="field"><label>Notas</label><textarea id="ef_notas">${m.notas||''}</textarea></div>
-    <button class="btn btn-primary" onclick="guardarEdicion()">Guardar cambios</button>
-  `;
-
-  // Tab Mails
-  await loadMailsModal(m.id);
-
-  // Footer
-  const footer = document.getElementById('modalFooter');
-  footer.innerHTML = '';
-  if (!m.aprobada_contacto && !m.mail_enviado) {
-    footer.innerHTML += `<button class="btn btn-success" onclick="aprobarMarca('${m.id}');closeModal()">✓ Aprobar para contacto</button>`;
-  }
-  if (m.aprobada_contacto && !m.mail_enviado) {
-    footer.innerHTML += `<button class="btn btn-primary" onclick="generarYEnviarMail('${m.id}')">✉ Generar y enviar mail</button>`;
-    footer.innerHTML += `<button class="btn btn-outline" onclick="desaprobarMarca('${m.id}');closeModal()">✕ Desaprobar</button>`;
-  }
-  footer.innerHTML += `<button class="btn btn-danger btn-sm" style="margin-left:auto;" onclick="eliminarMarca('${m.id}')">Eliminar</button>`;
-
-  document.getElementById('modalOverlay').classList.add('open');
-  // Reset tabs
-  showTab('tabPerfil', document.querySelector('.modal-tab'));
-}
-
-async function loadMailsModal(marcaId) {
-  const el = document.getElementById('mailsContent');
-  el.innerHTML = '<div style="color:var(--ink-soft);font-size:13px;">Cargando…</div>';
-  try {
-    const r = await api('GET', `/marcas/${marcaId}/mails`);
-    const mails = r.data || [];
-    if (!mails.length) {
-      el.innerHTML = `<div class="empty-state" style="padding:32px 0;">
-        <div class="empty-icon">📭</div>
-        <div class="empty-title">Sin mails generados</div>
-        <div class="empty-sub">Aprueba la marca y genera el mail desde el footer</div>
-      </div>`;
-      return;
-    }
-    el.innerHTML = mails.map(mail => `
-      <div style="margin-bottom:20px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-          <span class="mail-estado ${mail.estado === 'enviado' ? 'mail-enviado' : 'mail-borrador'}">
-            ${mail.estado === 'enviado' ? '✓ Enviado' : '📝 Borrador'}
-          </span>
-          <span style="font-size:11px;color:var(--ink-soft);">${mail.generado_at ? new Date(mail.generado_at).toLocaleDateString('es') : ''}</span>
-        </div>
-        <div class="mail-preview">
-          <div class="mail-asunto">Asunto: ${mail.asunto}</div>
-          <div class="mail-cuerpo">${mail.cuerpo}</div>
-        </div>
-        ${mail.estado !== 'enviado'
-          ? `<button class="btn btn-primary btn-sm" style="margin-top:10px;" onclick="enviarMailExistente('${mail.id}')">✉ Enviar este mail</button>`
-          : ''}
-      </div>
-    `).join('<hr style="margin:16px 0;border:none;border-top:1px solid var(--border);">');
-  } catch(e) {
-    el.innerHTML = `<div class="alert alert-danger">Error cargando mails: ${e.message}</div>`;
-  }
-}
-
-async function guardarEdicion() {
-  if (!marcaActual) return;
-  try {
-    await api('PUT', `/marcas/${marcaActual.id}`, {
-      nombre: document.getElementById('ef_nombre').value,
-      web: document.getElementById('ef_web').value,
-      pais: document.getElementById('ef_pais').value,
-      email_contacto: document.getElementById('ef_email').value,
-      telefono: document.getElementById('ef_tel').value,
-      lugar_fabricacion: document.getElementById('ef_fab').value,
-      precio_medio_bolso: parseFloat(document.getElementById('ef_precio').value) || null,
-      instagram: document.getElementById('ef_ig').value,
-      facebook: document.getElementById('ef_fb').value,
-      tiktok: document.getElementById('ef_tt').value,
-      notas: document.getElementById('ef_notas').value,
+  fetch(`${API}/marcas?${params}`, { headers: headers() })
+    .then(r => r.json())
+    .then(({ data }) => {
+      let filtered = data || [];
+      if (estado === 'pendiente') filtered = filtered.filter(m => !m.mail_enviado);
+      if (estado === 'enviado') filtered = filtered.filter(m => m.mail_enviado);
+      renderCards('cardsLista', filtered, 'lista');
     });
-    showToast('Marca actualizada', 'success');
-    await loadMarcas();
-    const updated = marcasData.find(m => m.id === marcaActual.id);
-    if (updated) { marcaActual = updated; }
-  } catch(e) { showToast(e.message, 'error'); }
 }
 
-async function eliminarMarca(id) {
-  if (!confirm('¿Eliminar esta marca definitivamente?')) return;
-  try {
-    await api('DELETE', `/marcas/${id}`);
-    closeModal();
-    showToast('Marca eliminada', 'success');
-    await Promise.all([loadMarcas(), loadStats()]);
-  } catch(e) { showToast(e.message, 'error'); }
+async function cargarDescartadas() {
+  const res = await fetch(`${API}/marcas?estado=descartada`, { headers: headers() }).catch(() => null);
+  if (!res || !res.ok) return;
+  const { data } = await res.json();
+  renderCards('cardsDescartadas', data || [], 'descartadas');
+  document.getElementById('cnt-desc').textContent = (data || []).length;
 }
 
-function closeModal() {
-  document.getElementById('modalOverlay').classList.remove('open');
-  marcaActual = null;
+// ─── TABS ──────────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(`tab-${tab}`).classList.add('active');
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(`view-${tab}`).classList.add('active');
+
+  if (tab === 'lista') cargarLista();
+  if (tab === 'descartadas') cargarDescartadas();
 }
 
-// ─── Mails ─────────────────────────────────────────────────────────────────
-async function generarYEnviarMail(marcaId) {
-  const m = marcasData.find(x => x.id === marcaId);
-  if (!m) return;
-  if (!m.email_contacto) { showToast('Esta marca no tiene email de contacto', 'error'); return; }
-
-  showToast('Generando mail con IA…');
-  try {
-    const r = await api('POST', `/marcas/${marcaId}/mail/generar`);
-    // Mostrar preview antes de enviar
-    const ok = confirm(`📧 PREVIEW DEL MAIL\n\nAsunto: ${r.data.asunto}\n\n${r.data.cuerpo}\n\n¿Enviar este mail a ${m.email_contacto}?`);
-    if (ok) {
-      await api('POST', `/mails/${r.mail_id}/enviar`);
-      showToast('✓ Mail enviado correctamente', 'success');
-      closeModal();
-      await Promise.all([loadMarcas(), loadStats()]);
-    } else {
-      showToast('Mail guardado como borrador', 'success');
-      if (marcaActual?.id === marcaId) await loadMailsModal(marcaId);
-    }
-  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+// ─── RENDER CARDS ──────────────────────────────────────────────────────────
+function renderCards(containerId, marcas, mode) {
+  const el = document.getElementById(containerId);
+  if (!marcas || !marcas.length) {
+    const msgs = {
+      hoy: { icon: '🎯', title: 'Empieza a buscar', sub: 'Elige un país y pulsa "Buscar marcas" para encontrar candidatos' },
+      lista: { icon: '📋', title: 'Lista vacía', sub: 'Aprueba marcas desde "Detectadas hoy" para añadirlas aquí' },
+      descartadas: { icon: '🗂️', title: 'Sin descartes', sub: 'Las marcas que descartes no se repetirán en búsquedas futuras' }
+    };
+    const m = msgs[mode] || msgs.hoy;
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">${m.icon}</div><div class="empty-title">${m.title}</div><div class="empty-sub">${m.sub}</div></div>`;
+    return;
+  }
+  el.innerHTML = marcas.map(m => cardHTML(m, mode)).join('');
 }
 
-async function enviarMailExistente(mailId) {
-  if (!confirm('¿Enviar este mail ahora?')) return;
-  try {
-    await api('POST', `/mails/${mailId}/enviar`);
-    showToast('✓ Mail enviado', 'success');
-    if (marcaActual) await loadMailsModal(marcaActual.id);
-    await Promise.all([loadMarcas(), loadStats()]);
-  } catch(e) { showToast(e.message, 'error'); }
+function badgeClasif(c) {
+  if (!c) return '';
+  const map = { lujo: 'badge-luxury', premium: 'badge-premium', nueva: 'badge-nueva' };
+  const labels = { lujo: '💎 Lujo', premium: '⭐ Premium', nueva: '🌱 Nueva' };
+  return `<span class="badge ${map[c] || 'badge-premium'}">${labels[c] || c}</span>`;
 }
 
-// ─── UI helpers ────────────────────────────────────────────────────────────
-function showView(v) {
-  document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-  document.getElementById('view' + v.charAt(0).toUpperCase() + v.slice(1)).classList.add('active');
-  event.target.classList.add('active');
-  if (v === 'contacto') renderMarcasAprobadas();
+function socialLinks(m) {
+  const links = [];
+  if (m.instagram) links.push(`<a class="social-link" href="${m.instagram}" target="_blank">IG</a>`);
+  if (m.facebook) links.push(`<a class="social-link" href="${m.facebook}" target="_blank">FB</a>`);
+  if (m.tiktok) links.push(`<a class="social-link" href="${m.tiktok}" target="_blank">TT</a>`);
+  if (m.linkedin) links.push(`<a class="social-link" href="${m.linkedin}" target="_blank">LI</a>`);
+  if (m.email_contacto) links.push(`<a class="social-link" href="mailto:${m.email_contacto}">✉</a>`);
+  return links.length ? `<div class="social-row">${links.join('')}</div>` : '';
 }
 
-function showTab(tabId, btn) {
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.modal-tab').forEach(b => b.classList.remove('active'));
-  document.getElementById(tabId).classList.add('active');
-  if (btn) btn.classList.add('active');
+function cardHTML(m, mode) {
+  const initial = (m.nombre || '?')[0].toUpperCase();
+  const web = m.web ? `<a href="${m.web}" target="_blank">${m.web.replace('https://','').replace('http://','')}</a>` : '<span class="muted">—</span>';
+
+  const footerBtns = {
+    hoy: `
+      <button class="btn btn-sm btn-descartar" onclick="abrirDescartar('${m.id}','${esc(m.nombre)}')">Descartar</button>
+      <button class="btn btn-sm btn-aprobar" onclick="abrirAprobar('${m.id}','${esc(m.nombre)}','${m.clasificacion_contacto||'premium'}')">✓ Aprobar</button>
+    `,
+    lista: m.mail_enviado
+      ? `<span class="btn btn-sm btn-enviado">✓ Correo enviado</span>`
+      : `
+        <button class="btn btn-sm btn-descartar" onclick="abrirDescartar('${m.id}','${esc(m.nombre)}')">Descartar</button>
+        <button class="btn btn-sm btn-mail" onclick="abrirMail('${m.id}','${esc(m.nombre)}')">✉ Generar correo</button>
+      `,
+    descartadas: `
+      <button class="btn btn-sm btn-outline" onclick="recuperarMarca('${m.id}')">↩ Recuperar</button>
+    `
+  };
+
+  return `
+    <div class="marca-card" id="card-${m.id}">
+      <div class="card-header">
+        <div class="card-initial">${initial}</div>
+        <div class="card-name-block">
+          <div class="card-name">${m.nombre}</div>
+          <div class="card-web">${web}</div>
+        </div>
+        <div class="card-badges">
+          ${badgeClasif(m.clasificacion_contacto)}
+          ${m.pais ? `<span class="badge badge-pais">${m.pais}</span>` : ''}
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="field-grid">
+          <div class="field-item">
+            <span class="field-label">Segmento</span>
+            <span class="field-val">${m.segmento || '<span class="muted">—</span>'}</span>
+          </div>
+          <div class="field-item">
+            <span class="field-label">Precio medio</span>
+            <span class="field-val">${m.precio_medio_bolso ? `${m.precio_medio_bolso}€` : '<span class="muted">—</span>'}</span>
+          </div>
+          <div class="field-item">
+            <span class="field-label">Facturación</span>
+            <span class="field-val">${m.facturacion_estimada || '<span class="muted">—</span>'}</span>
+          </div>
+          <div class="field-item">
+            <span class="field-label">Fabricación</span>
+            <span class="field-val">${m.lugar_fabricacion || '<span class="muted">—</span>'}</span>
+          </div>
+        </div>
+        ${m.descripcion ? `<div class="card-desc">${m.descripcion}</div>` : ''}
+        ${socialLinks(m)}
+      </div>
+      <div class="card-footer">${footerBtns[mode] || ''}</div>
+    </div>
+  `;
 }
 
-let toastTimer;
-function showToast(msg, type = '') {
-  const t = document.getElementById('toast');
+function esc(str) {
+  return (str || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+
+// ─── DESCARTAR ─────────────────────────────────────────────────────────────
+function abrirDescartar(id, nombre) {
+  descartarId = id;
+  descartarMotivoVal = '';
+  document.getElementById('descartarNombre').textContent = nombre;
+  document.getElementById('descartarNota').value = '';
+  document.querySelectorAll('.motivo-opt').forEach(o => o.classList.remove('selected'));
+  document.getElementById('modalDescartar').classList.add('open');
+}
+
+function selectMotivo(el, val) {
+  document.querySelectorAll('.motivo-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  descartarMotivoVal = val;
+}
+
+async function confirmarDescartar() {
+  const nota = document.getElementById('descartarNota').value.trim();
+  const motivo = descartarMotivoVal ? `[${descartarMotivoVal}] ${nota}`.trim() : nota;
+
+  const res = await fetch(`${API}/marcas/${descartarId}/descartar`, {
+    method: 'POST',
+    headers: headers(),
+    body: JSON.stringify({ motivo })
+  }).catch(() => null);
+
+  closeModal('modalDescartar');
+  if (!res || !res.ok) { showToast('Error al descartar', 'error'); return; }
+
+  // Quitar de la vista actual
+  document.getElementById(`card-${descartarId}`)?.remove();
+  marcasHoy = marcasHoy.filter(m => m.id !== descartarId);
+  document.getElementById('cnt-hoy').textContent = marcasHoy.length;
+  if (currentTab === 'lista') await cargarLista();
+  await cargarStats();
+  showToast('Marca descartada', 'success');
+}
+
+// ─── APROBAR ───────────────────────────────────────────────────────────────
+function abrirAprobar(id, nombre, clasifActual) {
+  aprobarId = id;
+  clasifSeleccionada = clasifActual || 'premium';
+  document.getElementById('aprobarNombre').textContent = nombre;
+
+  // Seleccionar la clasificación sugerida por IA
+  document.querySelectorAll('.clasif-opt').forEach(o => o.classList.remove('selected'));
+  const map = { lujo: 'sel-lujo', premium: 'sel-premium', nueva: 'sel-nueva' };
+  document.querySelector(`.clasif-opt.${map[clasifSeleccionada] || 'sel-premium'}`)?.classList.add('selected');
+
+  document.getElementById('modalAprobar').classList.add('open');
+}
+
+function selectClasif(el, val) {
+  document.querySelectorAll('.clasif-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  clasifSeleccionada = val;
+}
+
+async function confirmarAprobar() {
+  const res = await fetch(`${API}/marcas/${aprobarId}/aprobar`, {
+    method: 'POST',
+    headers: headers(),
+    body: JSON.stringify({ clasificacion_contacto: clasifSeleccionada })
+  }).catch(() => null);
+
+  closeModal('modalAprobar');
+  if (!res || !res.ok) { showToast('Error al aprobar', 'error'); return; }
+
+  // Actualizar card en vista hoy
+  const card = document.getElementById(`card-${aprobarId}`);
+  if (card) {
+    // Actualizar footer del card para mostrar que está aprobada
+    const footer = card.querySelector('.card-footer');
+    if (footer) footer.innerHTML = `<span class="aprobada-badge">Añadida a Mi Lista</span>`;
+  }
+
+  // Actualizar en array local
+  const marca = marcasHoy.find(m => m.id === aprobarId);
+  if (marca) { marca.aprobada_contacto = 1; marca.clasificacion_contacto = clasifSeleccionada; }
+
+  await cargarStats();
+  showToast('Marca aprobada y añadida a tu lista', 'success');
+}
+
+// ─── RECUPERAR DESCARTADA ──────────────────────────────────────────────────
+async function recuperarMarca(id) {
+  const res = await fetch(`${API}/marcas/${id}`, {
+    method: 'PUT',
+    headers: headers(),
+    body: JSON.stringify({ estado: 'rastreada', aprobada_contacto: 0 })
+  }).catch(() => null);
+  if (!res || !res.ok) { showToast('Error al recuperar', 'error'); return; }
+  document.getElementById(`card-${id}`)?.remove();
+  showToast('Marca recuperada', 'success');
+  await cargarDescartadas();
+}
+
+// ─── CORREO ────────────────────────────────────────────────────────────────
+async function abrirMail(id, nombre) {
+  mailMarcaId = id;
+  mailActual = null;
+  mailId = null;
+  document.getElementById('mailNombre').textContent = nombre;
+  document.getElementById('mailContent').innerHTML = `
+    <div class="mail-loading">
+      <div class="spinner" style="margin:0 auto 12px;width:24px;height:24px;"></div>
+      Generando correo personalizado...
+    </div>`;
+  document.getElementById('mailFooter').style.display = 'none';
+  document.getElementById('modalMail').classList.add('open');
+
+  const res = await fetch(`${API}/marcas/${id}/mail/generar`, {
+    method: 'POST',
+    headers: headers()
+  }).catch(() => null);
+
+  if (!res || !res.ok) {
+    document.getElementById('mailContent').innerHTML = `<div class="mail-error">Error al generar el correo. Comprueba que la marca tiene email de contacto y está aprobada.</div>`;
+    return;
+  }
+
+  const { mail_id, data } = await res.json();
+  mailActual = data;
+  mailId = mail_id;
+
+  document.getElementById('mailContent').innerHTML = `
+    <div class="mail-preview">
+      <div class="mail-asunto">📧 ${data.asunto}</div>
+      <div class="mail-meta">
+        Para: ${data.idioma?.toUpperCase() || 'ES'} · Plantilla: ${data.clasificacion || 'premium'}
+        ${data.cuerpo.includes('gerencia@asopiel.com') ? ' · ✓ Firma incluida' : ''}
+      </div>
+      <div class="mail-cuerpo">${data.cuerpo}</div>
+    </div>`;
+  document.getElementById('mailFooter').style.display = 'flex';
+}
+
+function copiarMail() {
+  if (!mailActual) return;
+  const texto = `Asunto: ${mailActual.asunto}\n\n${mailActual.cuerpo}`;
+  navigator.clipboard.writeText(texto).then(() => showToast('Correo copiado al portapapeles', 'success'));
+}
+
+async function enviarMail() {
+  if (!mailId) return;
+  document.getElementById('btnEnviarMail').disabled = true;
+
+  const res = await fetch(`${API}/mails/${mailId}/enviar`, {
+    method: 'POST',
+    headers: headers()
+  }).catch(() => null);
+
+  document.getElementById('btnEnviarMail').disabled = false;
+
+  if (!res || !res.ok) {
+    showToast('Error al enviar. Comprueba la configuración de Resend.', 'error');
+    return;
+  }
+
+  closeModal('modalMail');
+  showToast('¡Correo enviado correctamente!', 'success');
+  await cargarLista();
+  await cargarStats();
+}
+
+// ─── MODAL HELPERS ─────────────────────────────────────────────────────────
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) closeModal(m.id); });
+});
+
+// ─── PROGRESS / TOAST ──────────────────────────────────────────────────────
+function setProgress(visible, text) {
+  const bar = document.getElementById('progressBar');
+  bar.classList.toggle('visible', visible);
+  if (text) document.getElementById('progressText').textContent = text;
+}
+
+function showToast(msg, type = 'success') {
+  const t = document.createElement('div');
   t.textContent = msg;
-  t.className = 'toast show' + (type ? ' ' + type : '');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.className = 'toast', 3500);
+  Object.assign(t.style, {
+    position: 'fixed', bottom: '24px', right: '24px', zIndex: '999',
+    padding: '12px 18px', borderRadius: '8px', fontSize: '13px', fontWeight: '600',
+    background: type === 'success' ? 'var(--verde)' : 'var(--danger)',
+    color: 'white', boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
+    transform: 'translateY(60px)', transition: 'transform 0.25s ease',
+    fontFamily: 'var(--font)'
+  });
+  document.body.appendChild(t);
+  requestAnimationFrame(() => { t.style.transform = 'translateY(0)'; });
+  setTimeout(() => {
+    t.style.transform = 'translateY(60px)';
+    setTimeout(() => t.remove(), 300);
+  }, 3000);
 }
 
-// ─── Arranque ──────────────────────────────────────────────────────────────
-if (TOKEN) {
-  initApp().catch(() => {
-    TOKEN = ''; localStorage.removeItem('marcadar_token');
-  });
+// ─── AUTO-LOGIN si hay token ────────────────────────────────────────────────
+if (token) {
+  fetch(`${API}/stats`, { headers: headers() }).then(r => {
+    if (r.ok) initApp();
+    else { token = ''; localStorage.removeItem('marcadar_token'); }
+  }).catch(() => {});
 }
 </script>
 </body>

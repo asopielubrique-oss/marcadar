@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS marcas (
   pais TEXT,
   idioma TEXT DEFAULT 'es',
   segmento TEXT,
+  clasificacion_contacto TEXT, -- lujo | premium | nueva
   precio_medio_bolso REAL,
   facturacion_estimada TEXT,
   lugar_fabricacion TEXT,
