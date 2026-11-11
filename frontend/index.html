@@ -200,6 +200,40 @@ body { font-family: var(--font); background: var(--bg); color: var(--ink); min-h
 .filter-select { padding: 7px 12px; border: 1.5px solid var(--border); border-radius: var(--radius); font-family: var(--font); font-size: 12px; color: var(--ink); background: white; outline: none; cursor: pointer; }
 .filter-select:focus { border-color: var(--accent); }
 
+/* ── ADMIN ──────────────────────────────────────────────────────── */
+.admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+@media (max-width: 900px) { .admin-grid { grid-template-columns: 1fr; } }
+.admin-card { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow); }
+.admin-card-header { background: var(--ink); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.admin-card-title { font-size: 13px; font-weight: 700; color: white; letter-spacing: 0.03em; }
+.admin-card-body { padding: 16px 20px; }
+.admin-form { display: grid; gap: 10px; }
+.admin-form .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.admin-input { width: 100%; padding: 8px 12px; border: 1.5px solid var(--border); border-radius: var(--radius); font-family: var(--font); font-size: 13px; color: var(--ink); background: white; outline: none; transition: border-color 0.15s; }
+.admin-input:focus { border-color: var(--accent); }
+.btn-sm-green { background: var(--verde-pale); color: var(--verde); border: 1px solid var(--verde); font-size: 12px; padding: 6px 14px; border-radius: var(--radius); font-family: var(--font); font-weight: 600; cursor: pointer; transition: all 0.15s; }
+.btn-sm-green:hover { background: var(--verde); color: white; }
+.btn-sm-green:disabled { opacity: .5; cursor: not-allowed; }
+.admin-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.admin-table th { text-align: left; font-size: 10px; font-weight: 700; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.05em; padding: 8px 10px; border-bottom: 1.5px solid var(--border); background: var(--bg); }
+.admin-table td { padding: 10px; border-bottom: 1px solid var(--bg-alt); vertical-align: top; color: var(--ink); }
+.admin-table tr:last-child td { border-bottom: none; }
+.admin-table tr:hover td { background: var(--bg); }
+.td-name { font-weight: 600; }
+.td-empresa { color: var(--ink-soft); font-size: 11px; margin-top: 2px; }
+.td-date { color: var(--ink-soft); font-size: 11px; white-space: nowrap; }
+.td-actions { display: flex; gap: 6px; white-space: nowrap; }
+.btn-table-del { background: none; border: 1px solid var(--border); border-radius: 4px; padding: 3px 8px; font-size: 11px; cursor: pointer; color: var(--ink-soft); font-family: var(--font); }
+.btn-table-del:hover { background: var(--danger-bg); color: var(--danger); border-color: var(--danger); }
+.admin-empty { text-align: center; padding: 24px; color: var(--ink-soft); font-size: 12px; }
+.admin-badge-active { display: inline-block; width: 7px; height: 7px; background: var(--verde); border-radius: 50%; margin-right: 4px; }
+.admin-badge-inactive { display: inline-block; width: 7px; height: 7px; background: var(--ink-soft); border-radius: 50%; opacity: 0.4; margin-right: 4px; }
+.admin-full { grid-column: 1 / -1; }
+.blocked-marca { font-weight: 600; }
+.blocked-web { font-size: 11px; color: var(--ink-soft); }
+.blocked-by { font-size: 11px; color: var(--accent); }
+.blocked-notas { font-size: 11px; color: var(--ink-soft); font-style: italic; }
+
 /* ── RESPONSIVE ─────────────────────────────────────────────────── */
 @media (max-width: 680px) {
   .header-stats { display: none; }
@@ -252,6 +286,9 @@ body { font-family: var(--font); background: var(--bg); color: var(--ink); min-h
         <button class="tab-btn" onclick="switchTab('descartadas')" id="tab-descartadas">
           Descartadas <span class="tab-count" id="cnt-desc">0</span>
         </button>
+        <button class="tab-btn" onclick="switchTab('admin')" id="tab-admin">
+          ⚙️ Admin
+        </button>
       </nav>
       <div class="header-stats">
         <div class="stat-pill"><span class="stat-num" id="stat-total">—</span><span class="stat-label">Total</span></div>
@@ -282,6 +319,8 @@ body { font-family: var(--font); background: var(--bg); color: var(--ink); min-h
             <div class="pais-chip" data-pais="Alemania" onclick="selectPais(this)">🇩🇪 Alemania</div>
             <div class="pais-chip" data-pais="Estados Unidos" onclick="selectPais(this)">🇺🇸 EE.UU.</div>
             <div class="pais-chip" data-pais="Portugal" onclick="selectPais(this)">🇵🇹 Portugal</div>
+            <div class="pais-chip" data-pais="China" onclick="selectPais(this)">🇨🇳 China</div>
+            <div class="pais-chip" data-pais="Japón" onclick="selectPais(this)">🇯🇵 Japón</div>
           </div>
           <!-- Nuevo país -->
           <div class="pais-nuevo-wrapper" style="margin-top: 10px;">
@@ -377,6 +416,93 @@ body { font-family: var(--font); background: var(--bg); color: var(--ink); min-h
         </div>
       </div>
     </div>
+
+    <!-- VISTA: ADMIN -->
+    <div class="view" id="view-admin">
+      <div class="view-header">
+        <div>
+          <div class="view-title">Administración</div>
+          <div class="view-subtitle">Gestión de asociados y marcas bloqueadas</div>
+        </div>
+        <div>
+          <a href="/asociado" target="_blank" class="btn btn-outline btn-sm" style="text-decoration:none;">↗ Portal asociados</a>
+        </div>
+      </div>
+
+      <div class="admin-grid">
+
+        <!-- CREAR ASOCIADO -->
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <span class="admin-card-title">Nuevo asociado</span>
+          </div>
+          <div class="admin-card-body">
+            <div class="admin-form">
+              <div class="row2">
+                <div>
+                  <div style="font-size:11px;font-weight:600;color:var(--ink-soft);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em">Nombre *</div>
+                  <input class="admin-input" id="a-nombre" placeholder="Nombre completo">
+                </div>
+                <div>
+                  <div style="font-size:11px;font-weight:600;color:var(--ink-soft);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em">Empresa</div>
+                  <input class="admin-input" id="a-empresa" placeholder="Nombre de empresa">
+                </div>
+              </div>
+              <div>
+                <div style="font-size:11px;font-weight:600;color:var(--ink-soft);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em">Clave de acceso *</div>
+                <input class="admin-input" id="a-clave" type="text" placeholder="Clave segura para el asociado" autocomplete="off">
+                <div style="font-size:10px;color:var(--ink-soft);margin-top:4px;">La clave se guardará como hash. El asociado la necesita para entrar al portal.</div>
+              </div>
+              <button class="btn-sm-green" id="btn-crear-asociado" onclick="crearAsociado()">+ Crear asociado</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- LISTA ASOCIADOS -->
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <span class="admin-card-title">Asociados registrados</span>
+            <button class="btn-sm-green" onclick="cargarAsociados()" style="font-size:11px;padding:4px 10px;">↺ Actualizar</button>
+          </div>
+          <div class="admin-card-body" style="padding:0;overflow:auto;max-height:360px;">
+            <table class="admin-table" id="tabla-asociados">
+              <thead><tr>
+                <th>Asociado</th>
+                <th>Desde</th>
+                <th></th>
+              </tr></thead>
+              <tbody id="tbody-asociados">
+                <tr><td colspan="3" class="admin-empty">Cargando…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- MARCAS BLOQUEADAS (tabla completa) -->
+        <div class="admin-card admin-full">
+          <div class="admin-card-header">
+            <span class="admin-card-title">🔒 Lista negra de marcas — todas las enviadas por asociados</span>
+            <button class="btn-sm-green" onclick="cargarBloqueadas()" style="font-size:11px;padding:4px 10px;">↺ Actualizar</button>
+          </div>
+          <div class="admin-card-body" style="padding:0;overflow:auto;max-height:460px;">
+            <table class="admin-table" id="tabla-bloqueadas">
+              <thead><tr>
+                <th>Marca</th>
+                <th>Web</th>
+                <th>Enviada por</th>
+                <th>Notas</th>
+                <th>Fecha</th>
+                <th></th>
+              </tr></thead>
+              <tbody id="tbody-bloqueadas">
+                <tr><td colspan="6" class="admin-empty">Cargando…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div><!-- /admin-grid -->
+    </div><!-- /view-admin -->
 
   </main>
 </div>
@@ -741,6 +867,7 @@ function switchTab(tab) {
 
   if (tab === 'lista') cargarLista();
   if (tab === 'descartadas') cargarDescartadas();
+  if (tab === 'admin') { cargarAsociados(); cargarBloqueadas(); }
 }
 
 // ─── RENDER CARDS ──────────────────────────────────────────────────────────
@@ -1038,6 +1165,122 @@ function showToast(msg, type = 'success') {
     t.style.transform = 'translateY(60px)';
     setTimeout(() => t.remove(), 300);
   }, 3000);
+}
+
+// ─── ADMIN: ASOCIADOS ─────────────────────────────────────────────────────
+async function cargarAsociados() {
+  const tbody = document.getElementById('tbody-asociados');
+  tbody.innerHTML = '<tr><td colspan="3" class="admin-empty">Cargando…</td></tr>';
+  try {
+    const res = await fetch(`${API}/admin/asociados`, { headers: headers() });
+    const data = await res.json();
+    const lista = data.data || [];
+    if (!lista.length) {
+      tbody.innerHTML = '<tr><td colspan="3" class="admin-empty">Sin asociados registrados</td></tr>';
+      return;
+    }
+    tbody.innerHTML = lista.map(a => {
+      const fecha = a.created_at ? new Date(a.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: '2-digit' }) : '—';
+      const dot = a.activo ? '<span class="admin-badge-active"></span>' : '<span class="admin-badge-inactive"></span>';
+      return `<tr>
+        <td><div class="td-name">${dot}${esc(a.nombre)}</div>${a.empresa ? `<div class="td-empresa">${esc(a.empresa)}</div>` : ''}</td>
+        <td class="td-date">${fecha}</td>
+        <td><div class="td-actions">
+          <button class="btn-table-del" onclick="toggleAsociado('${a.id}', ${a.activo})" title="${a.activo ? 'Desactivar' : 'Activar'}">${a.activo ? '⏸' : '▶'}</button>
+          <button class="btn-table-del" onclick="eliminarAsociado('${a.id}', '${esc(a.nombre)}')" title="Eliminar">✕</button>
+        </div></td>
+      </tr>`;
+    }).join('');
+  } catch (e) {
+    tbody.innerHTML = '<tr><td colspan="3" class="admin-empty">Error al cargar</td></tr>';
+  }
+}
+
+async function crearAsociado() {
+  const nombre = document.getElementById('a-nombre').value.trim();
+  const empresa = document.getElementById('a-empresa').value.trim();
+  const clave = document.getElementById('a-clave').value.trim();
+  if (!nombre || !clave) { showToast('Nombre y clave son obligatorios', 'error'); return; }
+
+  const btn = document.getElementById('btn-crear-asociado');
+  btn.disabled = true;
+  btn.textContent = 'Creando…';
+
+  try {
+    const res = await fetch(`${API}/admin/asociados`, {
+      method: 'POST',
+      headers: headers(),
+      body: JSON.stringify({ nombre, empresa: empresa || null, clave })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error');
+    document.getElementById('a-nombre').value = '';
+    document.getElementById('a-empresa').value = '';
+    document.getElementById('a-clave').value = '';
+    showToast('Asociado creado correctamente', 'success');
+    await cargarAsociados();
+  } catch (e) {
+    showToast(e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '+ Crear asociado';
+  }
+}
+
+async function toggleAsociado(id, activo) {
+  await fetch(`${API}/admin/asociados/${id}`, {
+    method: 'PUT',
+    headers: headers(),
+    body: JSON.stringify({ activo: activo ? 0 : 1 })
+  });
+  await cargarAsociados();
+}
+
+async function eliminarAsociado(id, nombre) {
+  if (!confirm(`¿Eliminar al asociado "${nombre}"? Se eliminarán también todas sus marcas bloqueadas.`)) return;
+  await fetch(`${API}/admin/asociados/${id}`, { method: 'DELETE', headers: headers() });
+  showToast('Asociado eliminado', 'success');
+  await cargarAsociados();
+  await cargarBloqueadas();
+}
+
+// ─── ADMIN: MARCAS BLOQUEADAS ─────────────────────────────────────────────
+async function cargarBloqueadas() {
+  const tbody = document.getElementById('tbody-bloqueadas');
+  tbody.innerHTML = '<tr><td colspan="6" class="admin-empty">Cargando…</td></tr>';
+  try {
+    const res = await fetch(`${API}/admin/marcas-bloqueadas`, { headers: headers() });
+    const data = await res.json();
+    const lista = data.data || [];
+    if (!lista.length) {
+      tbody.innerHTML = '<tr><td colspan="6" class="admin-empty">Sin marcas bloqueadas aún</td></tr>';
+      return;
+    }
+    tbody.innerHTML = lista.map(m => {
+      const fecha = m.created_at ? new Date(m.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: '2-digit' }) : '—';
+      return `<tr>
+        <td><div class="blocked-marca">${esc(m.nombre)}</div></td>
+        <td><div class="blocked-web">${m.web ? `<a href="${esc(m.web)}" target="_blank" style="color:var(--accent);text-decoration:none">${esc(m.web)}</a>` : '—'}</div></td>
+        <td><div class="blocked-by">${esc(m.asociado_nombre)}${m.asociado_empresa ? `<br><span style="font-size:10px;color:var(--ink-soft)">${esc(m.asociado_empresa)}</span>` : ''}</div></td>
+        <td><div class="blocked-notas">${m.notas ? esc(m.notas) : '—'}</div></td>
+        <td class="td-date">${fecha}</td>
+        <td><button class="btn-table-del" onclick="eliminarBloqueada('${m.id}', '${esc(m.nombre)}')">✕</button></td>
+      </tr>`;
+    }).join('');
+  } catch (e) {
+    tbody.innerHTML = '<tr><td colspan="6" class="admin-empty">Error al cargar</td></tr>';
+  }
+}
+
+async function eliminarBloqueada(id, nombre) {
+  if (!confirm(`¿Eliminar "${nombre}" de la lista negra? La marca volverá a aparecer en búsquedas.`)) return;
+  await fetch(`${API}/admin/marcas-bloqueadas/${id}`, { method: 'DELETE', headers: headers() });
+  showToast('Entrada eliminada', 'success');
+  await cargarBloqueadas();
+}
+
+function esc(s) {
+  return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 // ─── AUTO-LOGIN si hay token ────────────────────────────────────────────────

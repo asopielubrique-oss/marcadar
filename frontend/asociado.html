@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal Asociado · Marcadar · Asopiel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #F7F5F2;
+      --surface: #FFFFFF;
+      --accent: #1B4F8A;
+      --accent-light: #E8F0FA;
+      --verde: #1A6B3C;
+      --verde-light: #E6F4EC;
+      --rojo: #B91C1C;
+      --rojo-light: #FEE2E2;
+      --ink: #1A2B1F;
+      --ink-soft: #4A5568;
+      --ink-muted: #718096;
+      --border: #E2DDD8;
+      --shadow: 0 1px 3px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.04);
+      --radius: 10px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 18px;
+      color: var(--accent);
+      letter-spacing: -.3px;
+    }
+
+    .logo span {
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--ink-muted);
+      margin-left: 8px;
+      letter-spacing: .4px;
+      text-transform: uppercase;
+    }
+
+    .user-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--ink-soft);
+    }
+
+    .user-pill strong {
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    .btn-logout {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      color: var(--ink-soft);
+      transition: .15s;
+    }
+    .btn-logout:hover { background: var(--bg); color: var(--rojo); border-color: var(--rojo); }
+
+    /* ── MAIN ── */
+    main {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 32px 24px 64px;
+    }
+
+    /* ── LOGIN SCREEN ── */
+    #login-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 56px);
+      padding: 24px;
+    }
+
+    .login-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 40px 36px;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: var(--shadow);
+    }
+
+    .login-brand {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .login-brand h1 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 26px;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+
+    .login-brand p {
+      font-size: 13px;
+      color: var(--ink-muted);
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ink-soft);
+      margin-bottom: 6px;
+      letter-spacing: .3px;
+      text-transform: uppercase;
+    }
+
+    .form-group input, .form-group textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--ink);
+      background: var(--bg);
+      transition: .15s;
+      outline: none;
+    }
+
+    .form-group input:focus, .form-group textarea:focus {
+      border-color: var(--accent);
+      background: var(--surface);
+      box-shadow: 0 0 0 3px rgba(27,79,138,.1);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 72px;
+    }
+
+    .btn-primary {
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 11px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: .15s;
+      font-family: inherit;
+    }
+    .btn-primary:hover { background: #163f70; }
+    .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+
+    .error-msg {
+      background: var(--rojo-light);
+      color: var(--rojo);
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 13px;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    /* ── PORTAL SCREEN ── */
+    #portal-screen { display: none; }
+
+    .page-header {
+      margin-bottom: 28px;
+    }
+
+    .page-header h2 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 22px;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+
+    .page-header p {
+      font-size: 13px;
+      color: var(--ink-muted);
+      line-height: 1.5;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .card h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card h3 .badge {
+      background: var(--accent-light);
+      color: var(--accent);
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+
+    /* ── FORM ADD ── */
+    .add-form {
+      display: grid;
+      gap: 12px;
+    }
+
+    .add-form .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 540px) {
+      .add-form .row { grid-template-columns: 1fr; }
+    }
+
+    .btn-add {
+      background: var(--verde);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: .15s;
+      font-family: inherit;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-add:hover { background: #145530; }
+    .btn-add:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* ── LISTA MARCAS ── */
+    .marcas-list {
+      list-style: none;
+    }
+
+    .marca-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .marca-item:last-child { border-bottom: none; }
+
+    .marca-info { flex: 1; min-width: 0; }
+
+    .marca-nombre {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 2px;
+    }
+
+    .marca-web {
+      font-size: 12px;
+      color: var(--ink-muted);
+      text-decoration: none;
+    }
+    .marca-web:hover { color: var(--accent); }
+
+    .marca-notas {
+      font-size: 12px;
+      color: var(--ink-soft);
+      margin-top: 4px;
+      font-style: italic;
+    }
+
+    .btn-remove {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 12px;
+      cursor: pointer;
+      color: var(--ink-muted);
+      transition: .15s;
+      flex-shrink: 0;
+    }
+    .btn-remove:hover { background: var(--rojo-light); color: var(--rojo); border-color: var(--rojo); }
+
+    .empty-state {
+      text-align: center;
+      padding: 32px 16px;
+      color: var(--ink-muted);
+      font-size: 13px;
+    }
+
+    .empty-state .icon { font-size: 32px; margin-bottom: 8px; }
+
+    /* ── INFO BOX ── */
+    .info-box {
+      background: var(--accent-light);
+      border: 1px solid #c5d9f1;
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-size: 13px;
+      color: var(--accent);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .info-box strong { font-weight: 600; }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--ink);
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      box-shadow: 0 4px 20px rgba(0,0,0,.2);
+      transform: translateY(16px);
+      opacity: 0;
+      transition: .2s;
+      pointer-events: none;
+      z-index: 999;
+      max-width: 300px;
+    }
+    #toast.show { transform: translateY(0); opacity: 1; }
+    #toast.error { background: var(--rojo); }
+    #toast.ok { background: var(--verde); }
+
+    /* ── SPINNER ── */
+    .spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .6s linear infinite;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-row {
+      text-align: center;
+      padding: 24px;
+      color: var(--ink-muted);
+      font-size: 13px;
+    }
+
+    .fecha-tag {
+      font-size: 11px;
+      color: var(--ink-muted);
+      margin-left: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    Marcadar <span>Asociados</span>
+  </div>
+  <div class="user-pill" id="user-info" style="display:none">
+    <strong id="user-nombre"></strong>
+    <button class="btn-logout" onclick="logout()">Cerrar sesión</button>
+  </div>
+</header>
+
+<!-- ── LOGIN ── -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-brand">
+      <h1>Marcadar</h1>
+      <p>Portal de Asociados · Asopiel</p>
+    </div>
+    <div class="error-msg" id="login-error"></div>
+    <div class="form-group">
+      <label>Clave de acceso</label>
+      <input type="password" id="login-clave" placeholder="Introduce tu clave" autocomplete="current-password">
+    </div>
+    <button class="btn-primary" id="btn-login" onclick="doLogin()">Acceder</button>
+  </div>
+</div>
+
+<!-- ── PORTAL ── -->
+<div id="portal-screen">
+  <main>
+    <div class="page-header">
+      <h2>Mis marcas registradas</h2>
+      <p>Las marcas que añadas aquí quedarán excluidas automáticamente de los rastreos de Marcadar. Nadie más que el administrador puede ver esta lista.</p>
+    </div>
+
+    <div class="info-box">
+      <strong>¿Para qué sirve este registro?</strong><br>
+      Cuando Marcadar busca nuevas marcas para contactar, comprueba automáticamente esta lista negra compartida. Si una marca que ya fabricas está registrada aquí, no aparecerá como candidata para otros asociados. Ayuda a evitar duplicidades y protege tus relaciones comerciales.
+    </div>
+
+    <!-- AÑADIR MARCA -->
+    <div class="card">
+      <h3>➕ Añadir una marca</h3>
+      <div class="add-form">
+        <div class="row">
+          <div class="form-group" style="margin:0">
+            <label>Nombre de la marca *</label>
+            <input type="text" id="nueva-nombre" placeholder="Ej: Loewe" autocomplete="off">
+          </div>
+          <div class="form-group" style="margin:0">
+            <label>Web (opcional)</label>
+            <input type="url" id="nueva-web" placeholder="https://...">
+          </div>
+        </div>
+        <div class="form-group" style="margin:0">
+          <label>Notas (opcional)</label>
+          <textarea id="nueva-notas" placeholder="Ej: Cliente desde 2018, bolsos y carteras"></textarea>
+        </div>
+        <div>
+          <button class="btn-add" id="btn-add" onclick="addMarca()">
+            <span id="btn-add-text">Registrar marca</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LISTA -->
+    <div class="card">
+      <h3>
+        Marcas registradas
+        <span class="badge" id="count-badge">0</span>
+      </h3>
+      <div id="lista-container">
+        <div class="loading-row">Cargando…</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  const API = 'https://marcadar.asopielubrique.workers.dev';
+  let token = null;
+  let asociadoNombre = '';
+
+  // ── INIT ──────────────────────────────────────────────────────────────────
+  window.addEventListener('DOMContentLoaded', () => {
+    const saved = sessionStorage.getItem('marcadar_asociado_token');
+    if (saved) {
+      const data = JSON.parse(saved);
+      token = data.token;
+      asociadoNombre = data.nombre;
+      showPortal(data);
+    }
+
+    document.getElementById('login-clave').addEventListener('keydown', e => {
+      if (e.key === 'Enter') doLogin();
+    });
+  });
+
+  // ── LOGIN ─────────────────────────────────────────────────────────────────
+  async function doLogin() {
+    const clave = document.getElementById('login-clave').value.trim();
+    if (!clave) return;
+
+    const btn = document.getElementById('btn-login');
+    const errEl = document.getElementById('login-error');
+    btn.disabled = true;
+    btn.textContent = 'Verificando…';
+    errEl.style.display = 'none';
+
+    try {
+      const res = await fetch(`${API}/asociado/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ clave })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Clave incorrecta');
+
+      sessionStorage.setItem('marcadar_asociado_token', JSON.stringify({
+        token: data.token,
+        nombre: data.nombre,
+        empresa: data.empresa
+      }));
+      token = data.token;
+      asociadoNombre = data.nombre;
+      showPortal(data);
+    } catch (e) {
+      errEl.textContent = e.message;
+      errEl.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Acceder';
+    }
+  }
+
+  // ── MOSTRAR PORTAL ────────────────────────────────────────────────────────
+  function showPortal(data) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('portal-screen').style.display = 'block';
+    document.getElementById('user-info').style.display = 'flex';
+    document.getElementById('user-nombre').textContent = data.empresa
+      ? `${data.nombre} · ${data.empresa}`
+      : data.nombre;
+    loadMarcas();
+  }
+
+  // ── LOGOUT ────────────────────────────────────────────────────────────────
+  function logout() {
+    sessionStorage.removeItem('marcadar_asociado_token');
+    token = null;
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('portal-screen').style.display = 'none';
+    document.getElementById('user-info').style.display = 'none';
+    document.getElementById('login-clave').value = '';
+  }
+
+  // ── CARGAR MARCAS ─────────────────────────────────────────────────────────
+  async function loadMarcas() {
+    const container = document.getElementById('lista-container');
+    container.innerHTML = '<div class="loading-row">Cargando…</div>';
+
+    try {
+      const res = await fetch(`${API}/asociado/mis-marcas`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.status === 401) { logout(); return; }
+      const data = await res.json();
+      renderMarcas(data.data || []);
+    } catch (e) {
+      container.innerHTML = '<div class="loading-row">Error al cargar. Intenta de nuevo.</div>';
+    }
+  }
+
+  // ── RENDERIZAR ────────────────────────────────────────────────────────────
+  function renderMarcas(marcas) {
+    const container = document.getElementById('lista-container');
+    document.getElementById('count-badge').textContent = marcas.length;
+
+    if (!marcas.length) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="icon">🔒</div>
+          <p>Aún no has registrado ninguna marca.</p>
+          <p>Usa el formulario de arriba para añadir las marcas con las que trabajas.</p>
+        </div>`;
+      return;
+    }
+
+    const ul = document.createElement('ul');
+    ul.className = 'marcas-list';
+    marcas.forEach(m => {
+      const li = document.createElement('li');
+      li.className = 'marca-item';
+      li.dataset.id = m.id;
+      const fecha = m.created_at ? new Date(m.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+      li.innerHTML = `
+        <div class="marca-info">
+          <div class="marca-nombre">${esc(m.nombre)} <span class="fecha-tag">${fecha}</span></div>
+          ${m.web ? `<a class="marca-web" href="${esc(m.web)}" target="_blank" rel="noopener">${esc(m.web)}</a>` : ''}
+          ${m.notas ? `<div class="marca-notas">${esc(m.notas)}</div>` : ''}
+        </div>
+        <button class="btn-remove" onclick="removeMarca('${m.id}', this)" title="Eliminar">✕</button>`;
+      ul.appendChild(li);
+    });
+    container.innerHTML = '';
+    container.appendChild(ul);
+  }
+
+  // ── AÑADIR ────────────────────────────────────────────────────────────────
+  async function addMarca() {
+    const nombre = document.getElementById('nueva-nombre').value.trim();
+    const web = document.getElementById('nueva-web').value.trim();
+    const notas = document.getElementById('nueva-notas').value.trim();
+    if (!nombre) { toast('El nombre es obligatorio', 'error'); return; }
+
+    const btn = document.getElementById('btn-add');
+    const txt = document.getElementById('btn-add-text');
+    btn.disabled = true;
+    txt.innerHTML = '<span class="spinner"></span> Guardando…';
+
+    try {
+      const res = await fetch(`${API}/asociado/mis-marcas`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ nombre, web: web || null, notas: notas || null })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Error al guardar');
+
+      document.getElementById('nueva-nombre').value = '';
+      document.getElementById('nueva-web').value = '';
+      document.getElementById('nueva-notas').value = '';
+      toast('Marca registrada correctamente', 'ok');
+      await loadMarcas();
+    } catch (e) {
+      toast(e.message, 'error');
+    } finally {
+      btn.disabled = false;
+      txt.textContent = 'Registrar marca';
+    }
+  }
+
+  // ── ELIMINAR ──────────────────────────────────────────────────────────────
+  async function removeMarca(id, btnEl) {
+    if (!confirm('¿Eliminar esta marca de tu lista? La búsqueda automática volverá a tenerla en cuenta.')) return;
+    btnEl.disabled = true;
+    btnEl.textContent = '…';
+
+    try {
+      const res = await fetch(`${API}/asociado/mis-marcas/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error('Error al eliminar');
+      toast('Marca eliminada', 'ok');
+      await loadMarcas();
+    } catch (e) {
+      toast(e.message, 'error');
+      btnEl.disabled = false;
+      btnEl.textContent = '✕';
+    }
+  }
+
+  // ── HELPERS ───────────────────────────────────────────────────────────────
+  function esc(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  let toastTimer;
+  function toast(msg, type = '') {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = 'show' + (type ? ` ${type}` : '');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { el.className = ''; }, 3000);
+  }
+</script>
+</body>
+</html>

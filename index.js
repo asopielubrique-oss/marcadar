@@ -24,6 +24,50 @@ function authenticate(request, env) {
   return auth.slice(7) === env.ADMIN_PASSWORD;
 }
 
+// ─── HASH CLAVE ASOCIADO ──────────────────────────────────────────────────────
+async function hashClave(clave) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(clave);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// ─── NORMALIZACIÓN DE NOMBRES/DOMINIOS ────────────────────────────────────────
+function normalizarNombre(nombre) {
+  return nombre.toLowerCase().replace(/\s+/g, ' ').trim();
+}
+
+function normalizarDominio(web) {
+  if (!web) return null;
+  try {
+    const url = web.startsWith('http') ? new URL(web) : new URL('https://' + web);
+    return url.hostname.replace(/^www\./, '').toLowerCase();
+  } catch {
+    return web.toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0];
+  }
+}
+
+// ─── OBTENER LISTA DE MARCAS BLOQUEADAS ───────────────────────────────────────
+async function getMarcasBloqueadas(env) {
+  const { results } = await env.MARCADAR_DB.prepare(
+    'SELECT nombre_norm, web_dominio FROM marcas_bloqueadas'
+  ).all();
+  return results || [];
+}
+
+// ─── COMPROBAR SI UNA MARCA ESTÁ BLOQUEADA ────────────────────────────────────
+function estaBloqueada(ficha, listaNegra) {
+  const nombreNorm = normalizarNombre(ficha.nombre || '');
+  const dominio = normalizarDominio(ficha.web);
+
+  for (const b of listaNegra) {
+    if (b.nombre_norm && b.nombre_norm === nombreNorm) return true;
+    if (dominio && b.web_dominio && b.web_dominio === dominio) return true;
+  }
+  return false;
+}
+
 // ─── PAÍSES EN ROTACIÓN ────────────────────────────────────────────────────
 const PAISES_ROTACION = ['España', 'Francia', 'Reino Unido'];
 
@@ -34,10 +78,29 @@ function getPaisDelDia() {
 }
 
 // ─── BÚSQUEDA AUTÓNOMA POR PAÍS ────────────────────────────────────────────
-async function buscarMarcasPorPais(pais, marcasDescartadas, env) {
+async function buscarMarcasPorPais(pais, marcasDescartadas, listaNegra, env) {
   const motivosCtx = marcasDescartadas.length > 0
     ? `\n\nMarcas ya descartadas anteriormente (NO las repitas): ${marcasDescartadas.map(m => m.nombre).join(', ')}.`
     : '';
+
+  // Instrucciones específicas para mercados asiáticos
+  let criteriosEspeciales = '';
+  if (pais === 'China') {
+    criteriosEspeciales = `
+Instrucciones específicas para China:
+- Busca marcas chinas de moda, lifestyle y complementos que usen o puedan usar artículos de piel
+- Incluye tanto marcas que fabrican en China como marcas que ya producen total o parcialmente fuera (Italia, Francia, etc.)
+- Prioriza marcas con presencia internacional o aspiraciones globales
+- Incluye marcas de lujo chinas emergentes, marcas premium urbanas y marcas con heritage artesanal
+- No limites la búsqueda solo a marcas que actualmente fabriquen fuera de China`;
+  } else if (pais === 'Japón') {
+    criteriosEspeciales = `
+Instrucciones específicas para Japón:
+- Busca marcas japonesas que valoren la artesanía, la calidad de los materiales y el detalle en el acabado
+- Incluye marcas de moda japonesa con influencia en el mercado global, marcas de accesorios premium y marcas lifestyle
+- El mercado japonés aprecia especialmente la transparencia en la cadena de producción y el origen artesanal
+- Incluye marcas tradicionales japonesas que buscan credenciales artesanales europeas y marcas contemporáneas`;
+  }
 
   const prompt = `Eres un analista experto en moda, marroquinería y complementos de lujo y premium.
 
@@ -47,14 +110,14 @@ Criterios de selección:
 - Marcas de moda, lifestyle, lujo, premium o mid-market que usen o puedan usar artículos de piel
 - Que actualmente no fabriquen en Ubrique (o que no sea su proveedor principal conocido)
 - Mezcla de marcas establecidas y marcas emergentes con potencial
-- Segmentos: luxury, premium, mid-market (no mass-market ni fast fashion)${motivosCtx}
+- Segmentos: luxury, premium, mid-market (no mass-market ni fast fashion)${criteriosEspeciales}${motivosCtx}
 
 Para cada marca, devuelve un objeto JSON con esta estructura exacta:
 {
   "nombre": "Nombre oficial",
   "web": "https://...",
   "pais": "${pais}",
-  "idioma": "código ISO 639-1 (es/en/fr/it/de/pt/nl/etc)",
+  "idioma": "código ISO 639-1 (es/en/fr/it/de/pt/zh/ja/etc)",
   "segmento": "luxury | premium | mid-market",
   "clasificacion_contacto": "lujo | premium | nueva",
   "precio_medio_bolso": número en euros o null,
@@ -96,7 +159,10 @@ Responde ÚNICAMENTE con un array JSON válido de exactamente 10 objetos. Sin te
   const text = data.content[0].text;
   const jsonMatch = text.match(/\[[\s\S]*\]/);
   if (!jsonMatch) throw new Error('La IA no devolvió JSON válido');
-  return JSON.parse(jsonMatch[0]);
+  const marcas = JSON.parse(jsonMatch[0]);
+
+  // Filtrar marcas bloqueadas
+  return marcas.filter(m => !estaBloqueada(m, listaNegra));
 }
 
 // ─── RASTREO DE MARCA CONCRETA ─────────────────────────────────────────────
@@ -224,6 +290,26 @@ Ubrique alberga um dos ecossistemas produtivos mais singulares do mundo: cerca d
 Na Asopiel atuamos como ponto de ligação entre marcas internacionais e os nossos associados, facilitando o desenvolvimento de produto com os mais elevados padrões de qualidade artesanal e com a confidencialidade que os projetos de alto nível exigem.
 
 Gostaríamos de explorar se existe alguma sinergia entre {nombre} e o talento produtivo de Ubrique. Faria sentido uma breve conversa nas próximas semanas?`
+    },
+    zh: {
+      asunto: 'Ubrique · 为{nombre}提供西班牙顶级手工皮具制造服务',
+      intro: `您好，我们来自Asopiel，这是代表西班牙乌布里克（Ubrique）手工皮具制造商的行业协会。
+
+乌布里克拥有世界上最独特的皮具生产生态系统之一：近200家企业覆盖皮具价值链的全部环节，从皮革和五金供应商到裁切、削薄、压纹、烫印和包装专业企业。一个完整的生态系统，集中在一个地方。
+
+在Asopiel，我们充当国际品牌与会员之间的连接纽带，以最高的手工艺质量标准促进产品开发，并保持高端项目所需的保密性。
+
+我们希望探讨{nombre}与乌布里克生产人才之间是否存在合作空间。在未来几周内进行一次简短的交流是否可行？`
+    },
+    ja: {
+      asunto: 'Ubrique · {nombre}様への高品質レザーグッズ製造のご提案',
+      intro: `スペイン・ウブリケ（Ubrique）の手工芸皮革製品メーカーを代表する業界団体、Asopielよりご連絡申し上げます。
+
+ウブリケは、世界でも有数のユニークな皮革製品生産エコシステムを誇ります。皮革・金具サプライヤーから裁断、漉き、エンボス加工、スタンピング、パッケージングの専門企業まで、約200社がバリューチェーン全体をカバーしています。すべてが一か所に集結した完全なエコシステムです。
+
+Asopielでは、国際ブランドと会員企業の架け橋として、最高水準の職人技術と高級プロジェクトに求められる機密性を維持しながら製品開発を支援しています。
+
+{nombre}様とウブリケの生産力との間に何らかのシナジーがあるかどうか、ぜひ探ってみたいと考えております。近いうちに短い会話の機会をいただけますでしょうか。`
     }
   },
 
@@ -287,6 +373,26 @@ Ubrique é possivelmente o ecossistema de marroquinaria mais completo da Europa:
 A nossa função é exatamente essa: encontrar dentro do ecossistema de Ubrique o parceiro ideal para cada projeto, seja uma nova coleção, uma linha específica ou uma colaboração a longo prazo.
 
 Se estão a avaliar opções de fabrico ou querem saber o que Ubrique pode oferecer, teremos todo o gosto em explicar numa breve chamada.`
+    },
+    zh: {
+      asunto: 'Asopiel · {nombre}在乌布里克的制造合作机会',
+      intro: `我们是Asopiel，西班牙乌布里克皮具行业的企业家协会，我们与您联系是因为相信与{nombre}可能存在有趣的合作机会。
+
+乌布里克可能是欧洲最完整的皮具生态系统：近200家企业覆盖整个生产链——原材料、辅助服务、制造和包装——集中在一个地方。Asopiel代表了75%以上的产能，直接与寻求在西班牙以有保障的手工艺质量进行生产的品牌合作。
+
+我们的职责正是如此：在乌布里克生态系统中为每个项目找到理想的合作伙伴，无论是新系列、特定产品线还是长期合作。
+
+如果您正在评估制造选项或想了解乌布里克能提供什么，我们很乐意在简短的通话中进行介绍。`
+    },
+    ja: {
+      asunto: 'Asopiel · {nombre}様のウブリケ製造パートナーシップについて',
+      intro: `私どもはAsopielと申します。スペイン・ウブリケの皮革製品業界の企業家協会です。{nombre}様との有益なコラボレーションの可能性があると考え、ご連絡させていただきました。
+
+ウブリケはおそらくヨーロッパで最も完全な皮革製品エコシステムです。原材料、補助サービス、製造、パッケージングまで、生産チェーン全体をカバーする約200社が一か所に集まっています。Asopielはその生産能力の75%以上を代表し、スペインで保証された職人品質での製造を求めるブランドと直接取り組んでいます。
+
+私どもの役割はまさにそれです。新しいコレクション、特定のライン、または長期的なコラボレーションなど、各プロジェクトに最適なパートナーをウブリケのエコシステム内で見つけることです。
+
+製造オプションを検討中であるか、ウブリケが提供できるものについてお知りになりたい場合は、短い通話でご説明できれば幸いです。`
     }
   },
 
@@ -338,6 +444,22 @@ Se siete in fase di ricerca di produzione o volete esplorare cosa può offrire U
 Em Ubrique encontrará tudo o que precisa para desenvolver um artigo de pele: fornecedores de matérias-primas, empresas auxiliares especializadas (corte, gravação, estampagem, divisão) e fabricantes com experiência em todo o tipo de artigos e acabamentos. Cerca de 200 empresas que formam um ecossistema único, com a vantagem de a Asopiel atuar como intermediária para tornar o processo mais ágil e direto.
 
 Se estão em fase de procura de produção ou querem explorar o que Ubrique pode oferecer ao vosso projeto, teremos todo o gosto em falar convosco.`
+    },
+    zh: {
+      asunto: 'Asopiel · 在乌布里克开发您的{nombre}项目',
+      intro: `我们是Asopiel，西班牙乌布里克皮具行业协会，我们对{nombre}的项目很感兴趣。
+
+在乌布里克，您可以找到开发皮具产品所需的一切：原材料供应商、专业辅助企业（裁切、压纹、烫印、削薄）以及在各类产品和工艺方面经验丰富的制造商。近200家企业形成独特的生态系统，Asopiel作为中间人使流程更加敏捷直接。
+
+如果您正在寻找生产资源或想探索乌布里克能为您的项目提供什么，我们很乐意与您交流。`
+    },
+    ja: {
+      asunto: 'Asopiel · ウブリケで{nombre}のプロジェクトを発展させましょう',
+      intro: `私どもはAsopiel、スペイン・ウブリケの皮革製品業界協会です。{nombre}様のプロジェクトに興味を持ちご連絡させていただきました。
+
+ウブリケでは、皮革製品を開発するために必要なすべてのものが揃っています。原材料サプライヤー、専門補助企業（裁断、エンボス加工、スタンピング、漉き）、あらゆる種類の製品と仕上げに経験豊富なメーカーなど。約200社がユニークなエコシステムを形成しており、Asopielが仲介者として機能することでプロセスをより迅速かつ直接的にする利点があります。
+
+製造先を探している段階であるか、ウブリケがあなたのプロジェクトに何を提供できるかを探りたい場合は、ぜひお話しましょう。`
     }
   }
 };
@@ -459,7 +581,7 @@ export default {
     const path = url.pathname.replace(/\/+$/, '') || '/';
     const method = request.method;
 
-    // LOGIN
+    // ── LOGIN ADMIN ──────────────────────────────────────────────────────────
     if (path === '/login' && method === 'POST') {
       const { password } = await request.json().catch(() => ({}));
       if (password === env.ADMIN_PASSWORD) {
@@ -468,12 +590,187 @@ export default {
       return errorResponse('Contraseña incorrecta', 401);
     }
 
-    // Rutas protegidas
-    if (!authenticate(request, env)) {
+    // ── LOGIN ASOCIADO ───────────────────────────────────────────────────────
+    if (path === '/asociado/login' && method === 'POST') {
+      const { clave } = await request.json().catch(() => ({}));
+      if (!clave) return errorResponse('Clave requerida');
+
+      const hash = await hashClave(clave);
+      const asociado = await env.MARCADAR_DB.prepare(
+        'SELECT id, nombre, empresa FROM asociados WHERE clave_hash = ? AND activo = 1'
+      ).bind(hash).first();
+
+      if (!asociado) return errorResponse('Clave incorrecta', 401);
+
+      // Token de asociado: "asociado:<hash>" — el Worker lo verifica internamente
+      return jsonResponse({
+        ok: true,
+        token: `asociado:${hash}`,
+        asociado_id: asociado.id,
+        nombre: asociado.nombre,
+        empresa: asociado.empresa
+      });
+    }
+
+    // ── Verificar token (admin o asociado) ───────────────────────────────────
+    const authHeader = (request.headers.get('Authorization') || '').replace('Bearer ', '');
+    const isAdmin = authHeader === env.ADMIN_PASSWORD;
+
+    // Para rutas de asociado necesitamos el asociado_id
+    let asociadoActual = null;
+    if (!isAdmin && authHeader.startsWith('asociado:')) {
+      const hash = authHeader.slice('asociado:'.length);
+      asociadoActual = await env.MARCADAR_DB.prepare(
+        'SELECT id, nombre, empresa FROM asociados WHERE clave_hash = ? AND activo = 1'
+      ).bind(hash).first();
+    }
+
+    // ── RUTAS DE ASOCIADO ────────────────────────────────────────────────────
+
+    // GET /asociado/mis-marcas — ver mis marcas bloqueadas
+    if (path === '/asociado/mis-marcas' && method === 'GET') {
+      if (!asociadoActual) return errorResponse('No autenticado', 401);
+      const { results } = await env.MARCADAR_DB.prepare(
+        'SELECT id, nombre, web, notas, created_at FROM marcas_bloqueadas WHERE asociado_id = ? ORDER BY created_at DESC'
+      ).bind(asociadoActual.id).all();
+      return jsonResponse({ ok: true, data: results });
+    }
+
+    // POST /asociado/mis-marcas — añadir marca bloqueada
+    if (path === '/asociado/mis-marcas' && method === 'POST') {
+      if (!asociadoActual) return errorResponse('No autenticado', 401);
+      const body = await request.json().catch(() => ({}));
+      if (!body.nombre) return errorResponse('El nombre es requerido');
+
+      const id = crypto.randomUUID().slice(0, 8);
+      const nombreNorm = normalizarNombre(body.nombre);
+      const dominio = normalizarDominio(body.web);
+
+      // Comprobar si ya existe (mismo asociado)
+      const existe = await env.MARCADAR_DB.prepare(
+        'SELECT id FROM marcas_bloqueadas WHERE nombre_norm = ? AND asociado_id = ?'
+      ).bind(nombreNorm, asociadoActual.id).first();
+
+      if (existe) return errorResponse('Esta marca ya está en tu lista', 409);
+
+      await env.MARCADAR_DB.prepare(`
+        INSERT INTO marcas_bloqueadas (id, nombre, nombre_norm, web, web_dominio, asociado_id, notas)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `).bind(id, body.nombre.trim(), nombreNorm, body.web || null, dominio, asociadoActual.id, body.notas || null).run();
+
+      return jsonResponse({ ok: true, id }, 201);
+    }
+
+    // DELETE /asociado/mis-marcas/:id — eliminar mi marca bloqueada
+    const miMarcaMatch = path.match(/^\/asociado\/mis-marcas\/([^/]+)$/);
+    if (miMarcaMatch && method === 'DELETE') {
+      if (!asociadoActual) return errorResponse('No autenticado', 401);
+      await env.MARCADAR_DB.prepare(
+        'DELETE FROM marcas_bloqueadas WHERE id = ? AND asociado_id = ?'
+      ).bind(miMarcaMatch[1], asociadoActual.id).run();
+      return jsonResponse({ ok: true });
+    }
+
+    // ── RUTAS PROTEGIDAS (solo admin) ────────────────────────────────────────
+    if (!isAdmin) {
       return errorResponse('No autenticado', 401);
     }
 
-    // STATS
+    // ── ADMIN: GESTIÓN DE ASOCIADOS ──────────────────────────────────────────
+
+    // GET /admin/asociados — listar asociados
+    if (path === '/admin/asociados' && method === 'GET') {
+      const { results } = await env.MARCADAR_DB.prepare(
+        'SELECT id, nombre, empresa, activo, created_at FROM asociados ORDER BY nombre'
+      ).all();
+      return jsonResponse({ ok: true, data: results });
+    }
+
+    // POST /admin/asociados — crear asociado
+    if (path === '/admin/asociados' && method === 'POST') {
+      const body = await request.json().catch(() => ({}));
+      if (!body.nombre || !body.clave) return errorResponse('nombre y clave son requeridos');
+
+      const id = crypto.randomUUID().slice(0, 8);
+      const hash = await hashClave(body.clave);
+
+      await env.MARCADAR_DB.prepare(`
+        INSERT INTO asociados (id, nombre, empresa, clave_hash, activo)
+        VALUES (?, ?, ?, ?, 1)
+      `).bind(id, body.nombre.trim(), body.empresa || null, hash).run();
+
+      return jsonResponse({ ok: true, id }, 201);
+    }
+
+    // PUT /admin/asociados/:id — actualizar asociado (resetear clave o cambiar nombre)
+    const asociadoMatch = path.match(/^\/admin\/asociados\/([^/]+)$/);
+    if (asociadoMatch && method === 'PUT') {
+      const body = await request.json().catch(() => ({}));
+      const sets = [];
+      const vals = [];
+
+      if (body.nombre) { sets.push('nombre = ?'); vals.push(body.nombre.trim()); }
+      if (body.empresa !== undefined) { sets.push('empresa = ?'); vals.push(body.empresa); }
+      if (typeof body.activo === 'number') { sets.push('activo = ?'); vals.push(body.activo); }
+      if (body.clave) {
+        const hash = await hashClave(body.clave);
+        sets.push('clave_hash = ?');
+        vals.push(hash);
+      }
+      if (!sets.length) return errorResponse('Sin campos a actualizar');
+      sets.push('updated_at = ?');
+      vals.push(new Date().toISOString());
+      vals.push(asociadoMatch[1]);
+
+      await env.MARCADAR_DB.prepare(`UPDATE asociados SET ${sets.join(', ')} WHERE id = ?`).bind(...vals).run();
+      return jsonResponse({ ok: true });
+    }
+
+    // DELETE /admin/asociados/:id — eliminar asociado
+    if (asociadoMatch && method === 'DELETE') {
+      await env.MARCADAR_DB.prepare('DELETE FROM asociados WHERE id = ?').bind(asociadoMatch[1]).run();
+      return jsonResponse({ ok: true });
+    }
+
+    // ── ADMIN: GESTIÓN DE MARCAS BLOQUEADAS ──────────────────────────────────
+
+    // GET /admin/marcas-bloqueadas — listar todas (con nombre del asociado)
+    if (path === '/admin/marcas-bloqueadas' && method === 'GET') {
+      const { results } = await env.MARCADAR_DB.prepare(`
+        SELECT mb.id, mb.nombre, mb.web, mb.notas, mb.created_at,
+               a.nombre AS asociado_nombre, a.empresa AS asociado_empresa
+        FROM marcas_bloqueadas mb
+        JOIN asociados a ON a.id = mb.asociado_id
+        ORDER BY mb.created_at DESC
+      `).all();
+      return jsonResponse({ ok: true, data: results });
+    }
+
+    // POST /admin/marcas-bloqueadas — añadir directamente como admin (asignando a un asociado)
+    if (path === '/admin/marcas-bloqueadas' && method === 'POST') {
+      const body = await request.json().catch(() => ({}));
+      if (!body.nombre || !body.asociado_id) return errorResponse('nombre y asociado_id son requeridos');
+
+      const id = crypto.randomUUID().slice(0, 8);
+      const nombreNorm = normalizarNombre(body.nombre);
+      const dominio = normalizarDominio(body.web);
+
+      await env.MARCADAR_DB.prepare(`
+        INSERT INTO marcas_bloqueadas (id, nombre, nombre_norm, web, web_dominio, asociado_id, notas)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `).bind(id, body.nombre.trim(), nombreNorm, body.web || null, dominio, body.asociado_id, body.notas || null).run();
+
+      return jsonResponse({ ok: true, id }, 201);
+    }
+
+    // DELETE /admin/marcas-bloqueadas/:id — eliminar entrada bloqueada
+    const bloqueadaMatch = path.match(/^\/admin\/marcas-bloqueadas\/([^/]+)$/);
+    if (bloqueadaMatch && method === 'DELETE') {
+      await env.MARCADAR_DB.prepare('DELETE FROM marcas_bloqueadas WHERE id = ?').bind(bloqueadaMatch[1]).run();
+      return jsonResponse({ ok: true });
+    }
+
+    // ── STATS ────────────────────────────────────────────────────────────────
     if (path === '/stats' && method === 'GET') {
       const stats = await env.MARCADAR_DB.prepare(`
         SELECT
@@ -484,47 +781,48 @@ export default {
           COUNT(DISTINCT pais) as paises
         FROM marcas
       `).first();
+      const bloqueadas = await env.MARCADAR_DB.prepare('SELECT COUNT(*) as total FROM marcas_bloqueadas').first();
       const paisDelDia = getPaisDelDia();
-      return jsonResponse({ ok: true, data: stats, pais_del_dia: paisDelDia });
+      return jsonResponse({ ok: true, data: { ...stats, bloqueadas: bloqueadas.total }, pais_del_dia: paisDelDia });
     }
 
-    // PAÍS DEL DÍA
+    // ── PAÍS DEL DÍA ─────────────────────────────────────────────────────────
     if (path === '/pais-del-dia' && method === 'GET') {
       return jsonResponse({ ok: true, pais: getPaisDelDia() });
     }
 
-    // BÚSQUEDA AUTÓNOMA POR PAÍS
+    // ── BÚSQUEDA AUTÓNOMA POR PAÍS ────────────────────────────────────────────
     if (path === '/buscar-por-pais' && method === 'POST') {
       const body = await request.json().catch(() => ({}));
       const pais = body.pais || getPaisDelDia();
 
-      // Obtener marcas ya descartadas para no repetirlas
       const { results: descartadas } = await env.MARCADAR_DB.prepare(
         "SELECT nombre FROM marcas WHERE estado = 'descartada'"
       ).all();
 
+      const listaNegra = await getMarcasBloqueadas(env);
+
       let marcas;
       try {
-        marcas = await buscarMarcasPorPais(pais, descartadas || [], env);
+        marcas = await buscarMarcasPorPais(pais, descartadas || [], listaNegra, env);
       } catch (e) {
         return errorResponse(`Error en búsqueda: ${e.message}`, 500);
       }
 
-      // Guardar todas en D1
       const guardadas = [];
       for (const ficha of marcas) {
         try {
           const id = await guardarMarcaEnDB(ficha, `busqueda:${pais}`, env);
           guardadas.push({ id, ...ficha });
         } catch (e) {
-          // Si ya existe (nombre duplicado), lo saltamos
+          // duplicado — saltar
         }
       }
 
       return jsonResponse({ ok: true, pais, total: guardadas.length, data: guardadas });
     }
 
-    // RASTREAR MARCA CONCRETA
+    // ── RASTREAR MARCA CONCRETA ───────────────────────────────────────────────
     if (path === '/marcas/rastrear' && method === 'POST') {
       const { url_o_nombre } = await request.json().catch(() => ({}));
       if (!url_o_nombre) return errorResponse('url_o_nombre es requerido');
@@ -536,11 +834,17 @@ export default {
         return errorResponse(`Error en rastreo: ${e.message}`, 500);
       }
 
+      // Comprobar si está bloqueada
+      const listaNegra = await getMarcasBloqueadas(env);
+      if (estaBloqueada(ficha, listaNegra)) {
+        return errorResponse('Esta marca está bloqueada (ya trabaja con un asociado)', 409);
+      }
+
       const id = await guardarMarcaEnDB(ficha, url_o_nombre, env);
       return jsonResponse({ ok: true, id, data: ficha }, 201);
     }
 
-    // LISTAR MARCAS
+    // ── LISTAR MARCAS ─────────────────────────────────────────────────────────
     if (path === '/marcas' && method === 'GET') {
       const estado = url.searchParams.get('estado');
       const pais = url.searchParams.get('pais');
@@ -561,7 +865,7 @@ export default {
       return jsonResponse({ ok: true, data: results });
     }
 
-    // OBTENER MARCA
+    // ── OBTENER MARCA ─────────────────────────────────────────────────────────
     const marcaMatch = path.match(/^\/marcas\/([^/]+)$/);
     if (marcaMatch && method === 'GET') {
       const marca = await env.MARCADAR_DB.prepare('SELECT * FROM marcas WHERE id = ?').bind(marcaMatch[1]).first();
@@ -569,7 +873,7 @@ export default {
       return jsonResponse({ ok: true, data: marca });
     }
 
-    // ACTUALIZAR MARCA
+    // ── ACTUALIZAR MARCA ──────────────────────────────────────────────────────
     if (marcaMatch && method === 'PUT') {
       const body = await request.json().catch(() => null);
       if (!body) return errorResponse('Body inválido');
@@ -594,13 +898,13 @@ export default {
       return jsonResponse({ ok: true });
     }
 
-    // ELIMINAR MARCA
+    // ── ELIMINAR MARCA ────────────────────────────────────────────────────────
     if (marcaMatch && method === 'DELETE') {
       await env.MARCADAR_DB.prepare('DELETE FROM marcas WHERE id = ?').bind(marcaMatch[1]).run();
       return jsonResponse({ ok: true });
     }
 
-    // APROBAR MARCA
+    // ── APROBAR MARCA ─────────────────────────────────────────────────────────
     const aprobarMatch = path.match(/^\/marcas\/([^/]+)\/aprobar$/);
     if (aprobarMatch && method === 'POST') {
       const body = await request.json().catch(() => ({}));
@@ -612,7 +916,7 @@ export default {
       return jsonResponse({ ok: true });
     }
 
-    // DESAPROBAR MARCA
+    // ── DESAPROBAR MARCA ──────────────────────────────────────────────────────
     const desaprobarMatch = path.match(/^\/marcas\/([^/]+)\/desaprobar$/);
     if (desaprobarMatch && method === 'POST') {
       const now = new Date().toISOString();
@@ -622,7 +926,7 @@ export default {
       return jsonResponse({ ok: true });
     }
 
-    // DESCARTAR MARCA
+    // ── DESCARTAR MARCA ───────────────────────────────────────────────────────
     const descartarMatch = path.match(/^\/marcas\/([^/]+)\/descartar$/);
     if (descartarMatch && method === 'POST') {
       const body = await request.json().catch(() => ({}));
@@ -633,7 +937,7 @@ export default {
       return jsonResponse({ ok: true });
     }
 
-    // GENERAR MAIL
+    // ── GENERAR MAIL ──────────────────────────────────────────────────────────
     const generarMailMatch = path.match(/^\/marcas\/([^/]+)\/mail\/generar$/);
     if (generarMailMatch && method === 'POST') {
       const marca = await env.MARCADAR_DB.prepare('SELECT * FROM marcas WHERE id = ?').bind(generarMailMatch[1]).first();
@@ -656,7 +960,7 @@ export default {
       return jsonResponse({ ok: true, mail_id: mailId, data: mail });
     }
 
-    // ENVIAR MAIL
+    // ── ENVIAR MAIL ───────────────────────────────────────────────────────────
     const enviarMailMatch = path.match(/^\/mails\/([^/]+)\/enviar$/);
     if (enviarMailMatch && method === 'POST') {
       const mailRec = await env.MARCADAR_DB.prepare('SELECT * FROM mails WHERE id = ?').bind(enviarMailMatch[1]).first();
@@ -685,7 +989,7 @@ export default {
       return jsonResponse({ ok: true, message_id: resultado.id });
     }
 
-    // LISTAR MAILS DE UNA MARCA
+    // ── LISTAR MAILS DE UNA MARCA ─────────────────────────────────────────────
     const mailsMarcaMatch = path.match(/^\/marcas\/([^/]+)\/mails$/);
     if (mailsMarcaMatch && method === 'GET') {
       const { results } = await env.MARCADAR_DB.prepare(
