@@ -431,29 +431,23 @@ body { font-family: var(--font); background: var(--bg); color: var(--ink); min-h
 
       <div class="admin-grid">
 
-        <!-- CREAR ASOCIADO -->
+        <!-- CREAR ASOCIADO MANUALMENTE -->
         <div class="admin-card">
           <div class="admin-card-header">
-            <span class="admin-card-title">Nuevo asociado</span>
+            <span class="admin-card-title">Crear asociado directamente</span>
           </div>
           <div class="admin-card-body">
             <div class="admin-form">
-              <div class="row2">
-                <div>
-                  <div style="font-size:11px;font-weight:600;color:var(--ink-soft);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em">Nombre *</div>
-                  <input class="admin-input" id="a-nombre" placeholder="Nombre completo">
-                </div>
-                <div>
-                  <div style="font-size:11px;font-weight:600;color:var(--ink-soft);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em">Empresa</div>
-                  <input class="admin-input" id="a-empresa" placeholder="Nombre de empresa">
-                </div>
+              <div>
+                <div style="font-size:11px;font-weight:600;color:var(--ink-soft);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em">Empresa *</div>
+                <input class="admin-input" id="a-empresa" placeholder="Nombre de la empresa">
               </div>
               <div>
-                <div style="font-size:11px;font-weight:600;color:var(--ink-soft);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em">Clave de acceso *</div>
-                <input class="admin-input" id="a-clave" type="text" placeholder="Clave segura para el asociado" autocomplete="off">
-                <div style="font-size:10px;color:var(--ink-soft);margin-top:4px;">La clave se guardará como hash. El asociado la necesita para entrar al portal.</div>
+                <div style="font-size:11px;font-weight:600;color:var(--ink-soft);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em">Email *</div>
+                <input class="admin-input" id="a-email" type="email" placeholder="email@empresa.com">
+                <div style="font-size:10px;color:var(--ink-soft);margin-top:4px;">Se genera una clave automáticamente y se envía por email al asociado.</div>
               </div>
-              <button class="btn-sm-green" id="btn-crear-asociado" onclick="crearAsociado()">+ Crear asociado</button>
+              <button class="btn-sm-green" id="btn-crear-asociado" onclick="crearAsociado()">+ Crear y enviar clave</button>
             </div>
           </div>
         </div>
@@ -461,18 +455,20 @@ body { font-family: var(--font); background: var(--bg); color: var(--ink); min-h
         <!-- LISTA ASOCIADOS -->
         <div class="admin-card">
           <div class="admin-card-header">
-            <span class="admin-card-title">Asociados registrados</span>
+            <span class="admin-card-title">Asociados y solicitudes</span>
             <button class="btn-sm-green" onclick="cargarAsociados()" style="font-size:11px;padding:4px 10px;">↺ Actualizar</button>
           </div>
           <div class="admin-card-body" style="padding:0;overflow:auto;max-height:360px;">
             <table class="admin-table" id="tabla-asociados">
               <thead><tr>
-                <th>Asociado</th>
+                <th>Empresa</th>
+                <th>Email</th>
+                <th>Estado</th>
                 <th>Desde</th>
                 <th></th>
               </tr></thead>
               <tbody id="tbody-asociados">
-                <tr><td colspan="3" class="admin-empty">Cargando…</td></tr>
+                <tr><td colspan="5" class="admin-empty">Cargando…</td></tr>
               </tbody>
             </table>
           </div>
@@ -1170,37 +1166,45 @@ function showToast(msg, type = 'success') {
 // ─── ADMIN: ASOCIADOS ─────────────────────────────────────────────────────
 async function cargarAsociados() {
   const tbody = document.getElementById('tbody-asociados');
-  tbody.innerHTML = '<tr><td colspan="3" class="admin-empty">Cargando…</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="5" class="admin-empty">Cargando…</td></tr>';
   try {
     const res = await fetch(`${API}/admin/asociados`, { headers: headers() });
     const data = await res.json();
     const lista = data.data || [];
     if (!lista.length) {
-      tbody.innerHTML = '<tr><td colspan="3" class="admin-empty">Sin asociados registrados</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="5" class="admin-empty">Sin asociados ni solicitudes</td></tr>';
       return;
     }
     tbody.innerHTML = lista.map(a => {
       const fecha = a.created_at ? new Date(a.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: '2-digit' }) : '—';
-      const dot = a.activo ? '<span class="admin-badge-active"></span>' : '<span class="admin-badge-inactive"></span>';
-      return `<tr>
-        <td><div class="td-name">${dot}${esc(a.nombre)}</div>${a.empresa ? `<div class="td-empresa">${esc(a.empresa)}</div>` : ''}</td>
+      const estadoBadge = a.estado === 'pendiente'
+        ? '<span style="background:#fff3cd;color:#856404;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.03em">⏳ PENDIENTE</span>'
+        : a.estado === 'activo'
+          ? '<span style="background:#d1e7dd;color:#0a3622;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.03em">✓ ACTIVO</span>'
+          : '<span style="background:#f8d7da;color:#58151c;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.03em">✕ INACTIVO</span>';
+      const aprobarBtn = a.estado === 'pendiente'
+        ? `<button class="btn-sm-green" onclick="aprobarAsociado('${a.id}', '${esc(a.empresa)}')" style="font-size:11px;padding:3px 10px;">✓ Aprobar</button>`
+        : '';
+      return `<tr${a.estado === 'pendiente' ? ' style="background:#fffdf0"' : ''}>
+        <td><div class="td-name">${esc(a.empresa || a.nombre)}</div></td>
+        <td class="td-date" style="font-size:11px">${esc(a.email || '—')}</td>
+        <td>${estadoBadge}</td>
         <td class="td-date">${fecha}</td>
         <td><div class="td-actions">
-          <button class="btn-table-del" onclick="toggleAsociado('${a.id}', ${a.activo})" title="${a.activo ? 'Desactivar' : 'Activar'}">${a.activo ? '⏸' : '▶'}</button>
-          <button class="btn-table-del" onclick="eliminarAsociado('${a.id}', '${esc(a.nombre)}')" title="Eliminar">✕</button>
+          ${aprobarBtn}
+          <button class="btn-table-del" onclick="eliminarAsociado('${a.id}', '${esc(a.empresa || a.nombre)}')" title="Eliminar">✕</button>
         </div></td>
       </tr>`;
     }).join('');
   } catch (e) {
-    tbody.innerHTML = '<tr><td colspan="3" class="admin-empty">Error al cargar</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" class="admin-empty">Error al cargar</td></tr>';
   }
 }
 
 async function crearAsociado() {
-  const nombre = document.getElementById('a-nombre').value.trim();
   const empresa = document.getElementById('a-empresa').value.trim();
-  const clave = document.getElementById('a-clave').value.trim();
-  if (!nombre || !clave) { showToast('Nombre y clave son obligatorios', 'error'); return; }
+  const email = document.getElementById('a-email').value.trim();
+  if (!empresa || !email) { showToast('Empresa y email son obligatorios', 'error'); return; }
 
   const btn = document.getElementById('btn-crear-asociado');
   btn.disabled = true;
@@ -1210,36 +1214,39 @@ async function crearAsociado() {
     const res = await fetch(`${API}/admin/asociados`, {
       method: 'POST',
       headers: headers(),
-      body: JSON.stringify({ nombre, empresa: empresa || null, clave })
+      body: JSON.stringify({ empresa, email })
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Error');
-    document.getElementById('a-nombre').value = '';
     document.getElementById('a-empresa').value = '';
-    document.getElementById('a-clave').value = '';
-    showToast('Asociado creado correctamente', 'success');
+    document.getElementById('a-email').value = '';
+    showToast('Asociado creado y clave enviada por email', 'success');
     await cargarAsociados();
   } catch (e) {
     showToast(e.message, 'error');
   } finally {
     btn.disabled = false;
-    btn.textContent = '+ Crear asociado';
+    btn.textContent = '+ Crear y enviar clave';
   }
 }
 
-async function toggleAsociado(id, activo) {
-  await fetch(`${API}/admin/asociados/${id}`, {
-    method: 'PUT',
-    headers: headers(),
-    body: JSON.stringify({ activo: activo ? 0 : 1 })
-  });
-  await cargarAsociados();
+async function aprobarAsociado(id, empresa) {
+  if (!confirm(`¿Aprobar la solicitud de "${empresa}"? Se generará una clave y se enviará por email.`)) return;
+  try {
+    const res = await fetch(`${API}/admin/asociados/${id}/aprobar`, { method: 'POST', headers: headers() });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error');
+    showToast(data.emailEnviado ? 'Aprobado y clave enviada por email ✓' : 'Aprobado (email no enviado, revisa configuración)', data.emailEnviado ? 'success' : 'warning');
+    await cargarAsociados();
+  } catch (e) {
+    showToast(e.message, 'error');
+  }
 }
 
 async function eliminarAsociado(id, nombre) {
-  if (!confirm(`¿Eliminar al asociado "${nombre}"? Se eliminarán también todas sus marcas bloqueadas.`)) return;
+  if (!confirm(`¿Eliminar "${nombre}"? Se eliminarán también todas sus marcas bloqueadas.`)) return;
   await fetch(`${API}/admin/asociados/${id}`, { method: 'DELETE', headers: headers() });
-  showToast('Asociado eliminado', 'success');
+  showToast('Eliminado', 'success');
   await cargarAsociados();
   await cargarBloqueadas();
 }

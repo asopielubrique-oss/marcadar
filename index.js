@@ -590,19 +590,43 @@ export default {
       return errorResponse('Contraseña incorrecta', 401);
     }
 
-    // ── LOGIN ASOCIADO ───────────────────────────────────────────────────────
+    // ── REGISTRO ASOCIADO (público) ──────────────────────────────────────────
+    if (path === '/asociado/registro' && method === 'POST') {
+      const { empresa, email } = await request.json().catch(() => ({}));
+      if (!empresa || !empresa.trim()) return errorResponse('El nombre de empresa es requerido');
+      if (!email || !email.trim()) return errorResponse('El email es requerido');
+
+      // Comprobar si ya existe una solicitud o cuenta con ese nombre de empresa
+      const existente = await env.MARCADAR_DB.prepare(
+        'SELECT id, estado FROM asociados WHERE LOWER(empresa) = LOWER(?)'
+      ).bind(empresa.trim()).first();
+
+      if (existente) {
+        if (existente.estado === 'pendiente') return errorResponse('Ya existe una solicitud pendiente para esta empresa', 409);
+        if (existente.estado === 'activo') return errorResponse('Esta empresa ya tiene una cuenta activa', 409);
+      }
+
+      const id = crypto.randomUUID().slice(0, 8);
+      await env.MARCADAR_DB.prepare(`
+        INSERT INTO asociados (id, nombre, empresa, email, clave_hash, activo, estado)
+        VALUES (?, ?, ?, ?, '', 0, 'pendiente')
+      `).bind(id, empresa.trim(), empresa.trim(), email.trim()).run();
+
+      return jsonResponse({ ok: true, mensaje: 'Solicitud recibida. Recibirás tu clave por email cuando sea aprobada.' }, 201);
+    }
+
+    // ── LOGIN ASOCIADO (empresa + clave) ─────────────────────────────────────
     if (path === '/asociado/login' && method === 'POST') {
-      const { clave } = await request.json().catch(() => ({}));
-      if (!clave) return errorResponse('Clave requerida');
+      const { empresa, clave } = await request.json().catch(() => ({}));
+      if (!empresa || !clave) return errorResponse('Empresa y clave son requeridas');
 
       const hash = await hashClave(clave);
       const asociado = await env.MARCADAR_DB.prepare(
-        'SELECT id, nombre, empresa FROM asociados WHERE clave_hash = ? AND activo = 1'
-      ).bind(hash).first();
+        "SELECT id, nombre, empresa FROM asociados WHERE LOWER(empresa) = LOWER(?) AND clave_hash = ? AND estado = 'activo'"
+      ).bind(empresa.trim(), hash).first();
 
-      if (!asociado) return errorResponse('Clave incorrecta', 401);
+      if (!asociado) return errorResponse('Empresa o clave incorrectas', 401);
 
-      // Token de asociado: "asociado:<hash>" — el Worker lo verifica internamente
       return jsonResponse({
         ok: true,
         token: `asociado:${hash}`,
@@ -621,7 +645,7 @@ export default {
     if (!isAdmin && authHeader.startsWith('asociado:')) {
       const hash = authHeader.slice('asociado:'.length);
       asociadoActual = await env.MARCADAR_DB.prepare(
-        'SELECT id, nombre, empresa FROM asociados WHERE clave_hash = ? AND activo = 1'
+        "SELECT id, nombre, empresa FROM asociados WHERE clave_hash = ? AND estado = 'activo'"
       ).bind(hash).first();
     }
 
@@ -681,25 +705,78 @@ export default {
     // GET /admin/asociados — listar asociados
     if (path === '/admin/asociados' && method === 'GET') {
       const { results } = await env.MARCADAR_DB.prepare(
-        'SELECT id, nombre, empresa, activo, created_at FROM asociados ORDER BY nombre'
+        "SELECT id, nombre, empresa, email, estado, activo, created_at FROM asociados ORDER BY CASE estado WHEN 'pendiente' THEN 0 WHEN 'activo' THEN 1 ELSE 2 END, nombre"
       ).all();
       return jsonResponse({ ok: true, data: results });
     }
 
-    // POST /admin/asociados — crear asociado
+    // POST /admin/asociados — crear asociado manualmente (admin genera y envía clave)
     if (path === '/admin/asociados' && method === 'POST') {
       const body = await request.json().catch(() => ({}));
-      if (!body.nombre || !body.clave) return errorResponse('nombre y clave son requeridos');
+      if (!body.empresa) return errorResponse('empresa es requerida');
+      if (!body.email) return errorResponse('email es requerido');
 
       const id = crypto.randomUUID().slice(0, 8);
-      const hash = await hashClave(body.clave);
+      const claveGenerada = crypto.randomUUID().slice(0, 12);
+      const hash = await hashClave(claveGenerada);
 
       await env.MARCADAR_DB.prepare(`
-        INSERT INTO asociados (id, nombre, empresa, clave_hash, activo)
-        VALUES (?, ?, ?, ?, 1)
-      `).bind(id, body.nombre.trim(), body.empresa || null, hash).run();
+        INSERT INTO asociados (id, nombre, empresa, email, clave_hash, activo, estado)
+        VALUES (?, ?, ?, ?, ?, 1, 'activo')
+      `).bind(id, body.empresa.trim(), body.empresa.trim(), body.email.trim(), hash).run();
 
-      return jsonResponse({ ok: true, id }, 201);
+      // Enviar clave por email
+      if (env.RESEND_API_KEY) {
+        await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            from: 'Marcadar <noreply@asopielubrique.es>',
+            to: [body.email.trim()],
+            subject: 'Tu acceso a Marcadar',
+            html: `<p>Hola,</p><p>Tu cuenta en <strong>Marcadar</strong> ha sido activada.</p><p><strong>Empresa:</strong> ${body.empresa.trim()}<br><strong>Clave:</strong> <code>${claveGenerada}</code></p><p>Accede en: <a href="https://marcadar.pages.dev/asociado">marcadar.pages.dev/asociado</a></p><p>Guarda esta clave, no se volverá a mostrar.</p>`
+          })
+        }).catch(() => {});
+      }
+
+      return jsonResponse({ ok: true, id, clave: claveGenerada }, 201);
+    }
+
+    // POST /admin/asociados/:id/aprobar — aprobar solicitud pendiente
+    const aprobarMatch = path.match(/^\/admin\/asociados\/([^/]+)\/aprobar$/);
+    if (aprobarMatch && method === 'POST') {
+      const asociadoId = aprobarMatch[1];
+
+      const pendiente = await env.MARCADAR_DB.prepare(
+        "SELECT id, empresa, email FROM asociados WHERE id = ? AND estado = 'pendiente'"
+      ).bind(asociadoId).first();
+
+      if (!pendiente) return errorResponse('Solicitud no encontrada o ya procesada', 404);
+
+      const claveGenerada = crypto.randomUUID().slice(0, 12);
+      const hash = await hashClave(claveGenerada);
+
+      await env.MARCADAR_DB.prepare(
+        "UPDATE asociados SET clave_hash = ?, estado = 'activo', activo = 1, updated_at = ? WHERE id = ?"
+      ).bind(hash, new Date().toISOString(), asociadoId).run();
+
+      // Enviar clave por email
+      let emailEnviado = false;
+      if (env.RESEND_API_KEY && pendiente.email) {
+        const resp = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            from: 'Marcadar <noreply@asopielubrique.es>',
+            to: [pendiente.email],
+            subject: 'Tu acceso a Marcadar ha sido aprobado',
+            html: `<p>Hola,</p><p>Tu solicitud de acceso a <strong>Marcadar</strong> ha sido aprobada.</p><p><strong>Empresa:</strong> ${pendiente.empresa}<br><strong>Clave:</strong> <code>${claveGenerada}</code></p><p>Accede en: <a href="https://marcadar.pages.dev/asociado">marcadar.pages.dev/asociado</a></p><p>Guarda esta clave, no se volverá a mostrar.</p>`
+          })
+        }).catch(() => null);
+        emailEnviado = resp && resp.ok;
+      }
+
+      return jsonResponse({ ok: true, emailEnviado });
     }
 
     // PUT /admin/asociados/:id — actualizar asociado (resetear clave o cambiar nombre)

@@ -420,12 +420,46 @@
       <h1>Marcadar</h1>
       <p>Portal de Asociados · Asopiel</p>
     </div>
-    <div class="error-msg" id="login-error"></div>
-    <div class="form-group">
-      <label>Clave de acceso</label>
-      <input type="password" id="login-clave" placeholder="Introduce tu clave" autocomplete="current-password">
+
+    <!-- Panel login -->
+    <div id="panel-login">
+      <div class="error-msg" id="login-error"></div>
+      <div class="form-group">
+        <label>Nombre de empresa</label>
+        <input type="text" id="login-empresa" placeholder="Nombre de tu empresa" autocomplete="organization">
+      </div>
+      <div class="form-group">
+        <label>Clave de acceso</label>
+        <input type="password" id="login-clave" placeholder="Clave recibida por email" autocomplete="current-password">
+      </div>
+      <button class="btn-primary" id="btn-login" onclick="doLogin()">Acceder</button>
+      <div style="text-align:center;margin-top:16px;">
+        <a href="#" onclick="showRegistro(); return false;" style="font-size:12px;color:var(--accent);text-decoration:none;">¿No tienes acceso? Solicitar registro</a>
+      </div>
     </div>
-    <button class="btn-primary" id="btn-login" onclick="doLogin()">Acceder</button>
+
+    <!-- Panel solicitar acceso -->
+    <div id="panel-registro" style="display:none">
+      <div style="text-align:center;margin-bottom:20px;">
+        <div style="font-size:28px;margin-bottom:8px;">📋</div>
+        <div style="font-size:14px;font-weight:600;color:var(--ink);margin-bottom:4px;">Solicitar acceso</div>
+        <div style="font-size:12px;color:var(--ink-muted)">El administrador revisará tu solicitud y recibirás la clave por email.</div>
+      </div>
+      <div class="error-msg" id="reg-error"></div>
+      <div id="reg-success" style="display:none;background:#d1e7dd;color:#0a3622;border-radius:8px;padding:14px;font-size:13px;margin-bottom:16px;line-height:1.5;"></div>
+      <div class="form-group">
+        <label>Nombre de empresa *</label>
+        <input type="text" id="reg-empresa" placeholder="Nombre de tu empresa" autocomplete="organization">
+      </div>
+      <div class="form-group">
+        <label>Email *</label>
+        <input type="email" id="reg-email" placeholder="tu@empresa.com" autocomplete="email">
+      </div>
+      <button class="btn-primary" id="btn-reg" onclick="doRegistro()">Enviar solicitud</button>
+      <div style="text-align:center;margin-top:16px;">
+        <a href="#" onclick="showLogin(); return false;" style="font-size:12px;color:var(--accent);text-decoration:none;">← Volver al acceso</a>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -492,21 +526,39 @@
   window.addEventListener('DOMContentLoaded', () => {
     const saved = sessionStorage.getItem('marcadar_asociado_token');
     if (saved) {
-      const data = JSON.parse(saved);
-      token = data.token;
-      asociadoNombre = data.nombre;
-      showPortal(data);
+      try {
+        const data = JSON.parse(saved);
+        token = data.token;
+        asociadoNombre = data.nombre;
+        showPortal(data);
+      } catch { sessionStorage.removeItem('marcadar_asociado_token'); }
     }
 
-    document.getElementById('login-clave').addEventListener('keydown', e => {
-      if (e.key === 'Enter') doLogin();
-    });
+    document.getElementById('login-empresa').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('login-clave').focus(); });
+    document.getElementById('login-clave').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+    document.getElementById('reg-empresa').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('reg-email').focus(); });
+    document.getElementById('reg-email').addEventListener('keydown', e => { if (e.key === 'Enter') doRegistro(); });
   });
 
-  // ── LOGIN ─────────────────────────────────────────────────────────────────
+  // ── ALTERNAR PANELES ──────────────────────────────────────────────────────
+  function showRegistro() {
+    document.getElementById('panel-login').style.display = 'none';
+    document.getElementById('panel-registro').style.display = 'block';
+    document.getElementById('reg-error').style.display = 'none';
+    document.getElementById('reg-success').style.display = 'none';
+    document.getElementById('reg-empresa').focus();
+  }
+  function showLogin() {
+    document.getElementById('panel-registro').style.display = 'none';
+    document.getElementById('panel-login').style.display = 'block';
+    document.getElementById('login-empresa').focus();
+  }
+
+  // ── LOGIN (empresa + clave) ───────────────────────────────────────────────
   async function doLogin() {
+    const empresa = document.getElementById('login-empresa').value.trim();
     const clave = document.getElementById('login-clave').value.trim();
-    if (!clave) return;
+    if (!empresa || !clave) return;
 
     const btn = document.getElementById('btn-login');
     const errEl = document.getElementById('login-error');
@@ -518,10 +570,10 @@
       const res = await fetch(`${API}/asociado/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ clave })
+        body: JSON.stringify({ empresa, clave })
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Clave incorrecta');
+      if (!res.ok) throw new Error(data.error || 'Empresa o clave incorrectas');
 
       sessionStorage.setItem('marcadar_asociado_token', JSON.stringify({
         token: data.token,
@@ -539,14 +591,51 @@
     }
   }
 
+  // ── REGISTRO (solicitar acceso) ───────────────────────────────────────────
+  async function doRegistro() {
+    const empresa = document.getElementById('reg-empresa').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    if (!empresa || !email) {
+      const errEl = document.getElementById('reg-error');
+      errEl.textContent = 'Empresa y email son obligatorios';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    const btn = document.getElementById('btn-reg');
+    const errEl = document.getElementById('reg-error');
+    btn.disabled = true;
+    btn.textContent = 'Enviando…';
+    errEl.style.display = 'none';
+
+    try {
+      const res = await fetch(`${API}/asociado/registro`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ empresa, email })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Error al enviar la solicitud');
+
+      document.getElementById('reg-success').textContent = data.mensaje || 'Solicitud enviada. Recibirás tu clave por email cuando sea aprobada.';
+      document.getElementById('reg-success').style.display = 'block';
+      document.getElementById('reg-empresa').value = '';
+      document.getElementById('reg-email').value = '';
+      btn.textContent = '✓ Solicitud enviada';
+    } catch (e) {
+      errEl.textContent = e.message;
+      errEl.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Enviar solicitud';
+    }
+  }
+
   // ── MOSTRAR PORTAL ────────────────────────────────────────────────────────
   function showPortal(data) {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('portal-screen').style.display = 'block';
     document.getElementById('user-info').style.display = 'flex';
-    document.getElementById('user-nombre').textContent = data.empresa
-      ? `${data.nombre} · ${data.empresa}`
-      : data.nombre;
+    document.getElementById('user-nombre').textContent = data.empresa || data.nombre;
     loadMarcas();
   }
 
@@ -557,7 +646,9 @@
     document.getElementById('login-screen').style.display = 'flex';
     document.getElementById('portal-screen').style.display = 'none';
     document.getElementById('user-info').style.display = 'none';
+    document.getElementById('login-empresa').value = '';
     document.getElementById('login-clave').value = '';
+    showLogin();
   }
 
   // ── CARGAR MARCAS ─────────────────────────────────────────────────────────
